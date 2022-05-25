@@ -1,0 +1,147 @@
+
+\section{Graphs}
+\label{sec:background:graphs}
+
+Graphs have been used long before the introduction of ML and cover a wide range
+of applications. To better understand the precise vocabulary of graphs, this
+section provides some definitions.
+
+\begin{definition}[Graph]
+  Ordered pair ($V, E$), where $V$ is a finite and non-empty set of elements
+  called \emph{vertices} (or \emph{nodes}), and $E$ is a set of unordered pairs of
+  distinct nodes of $V$, called \emph{edges}.
+  \label{def:graph}
+\end{definition}
+
+\noindent Basic types of graphs include:
+\begin{figure}[!ht]
+  \begin{minipage}{0.45\linewidth}
+    \centering
+    \begin{tikzpicture}[minimum size=0.5cm,node distance=1cm]
+      \node[entity] (alpha) {1};
+      \node[entity,above left=of alpha,xshift=15pt] (beta) {2};
+      \node[entity,above right=of alpha,yshift=-5pt,xshift=-5pt] (gamma) {3};
+      \node[entity,right=of gamma] (delta) {4};
+
+      \draw[arrow] (alpha) -- (beta);
+      \draw[arrow] (beta) -- (gamma);
+      \draw[arrow] (alpha) -- (gamma);
+      \draw[arrow] (gamma) -- (delta);
+    \end{tikzpicture}
+  \end{minipage}
+  %
+  \begin{minipage}{0.5\linewidth}
+    \begin{definition}[Oriented Graph]
+      Directed Graph where bidirected edges connect no pair of vertices.
+      \label{def:oriented:graph}
+    \end{definition}
+  \end{minipage}
+  \vfill
+  \vspace{\belowdisplayskip}
+  \begin{minipage}{0.45\linewidth}
+    \centering
+    \begin{tikzpicture}[minimum size=0.5cm,node distance=1cm]
+      \node[entity] (alpha) {1};
+      \node[entity,above left=of alpha,xshift=15pt] (beta) {2};
+      \node[entity,above right=of alpha,yshift=-5pt,xshift=-5pt] (gamma) {3};
+      \node[entity,right=of gamma] (delta) {4};
+
+      \draw[arrow] (alpha) -- (beta);
+      \draw[arrow] (beta) -- (gamma);
+      \draw[arrow] (alpha) -- (gamma);
+
+      \path[arrow] let \p1=($(gamma)-(delta)$),\n1={atan2(\y1,\x1)},\n2={180+\n1} in
+      ($ (delta.\n1)!2pt!90:(gamma.\n2) $) edge node {} ($ (gamma.\n2)!2pt!-90:(delta.\n1) $);
+      \path[arrow] let \p1=($(delta)-(gamma)$),\n1={atan2(\y1,\x1)},\n2={180+\n1} in
+      ($ (gamma.\n1)!2pt!90:(delta.\n2) $) edge node {} ($ (delta.\n2)!2pt!-90:(gamma.\n1)
+      $);
+    \end{tikzpicture}
+  \end{minipage}
+  %
+  \begin{minipage}{0.5\linewidth}
+    \begin{definition}[Directed Graph]
+      Named \emph{digraph}, it is defined as a graph whose edges have an
+      orientation, also known as \emph{directed edges}, \emph{directed links},
+      \emph{arrows}, or \emph{arcs}.
+      \label{def:directed:graph}
+    \end{definition}
+  \end{minipage}
+  \caption{Basic Graph Types (Part I).}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+  \begin{minipage}{0.45\linewidth}
+    \centering
+    \begin{tikzpicture}[minimum size=0.5cm,node distance=1cm]
+      \node[entity] (alpha) {1};
+      \node[entity,above left=of alpha,xshift=15pt] (beta) {2};
+      \node[entity,above right=of alpha,yshift=-5pt,xshift=-5pt] (gamma) {3};
+      \node[entity,right=of gamma] (delta) {4};
+
+      \draw (alpha) -- (beta);
+      \draw (beta) -- (gamma);
+      \draw (alpha) -- (gamma);
+      \draw (gamma) -- (delta);
+    \end{tikzpicture}
+  \end{minipage}
+  %
+  \begin{minipage}{0.5\linewidth}
+    \begin{definition}[Undirected Graph]
+      Graph whose edges are bidirectional.
+      \label{def:undirected:graph}
+    \end{definition}
+  \end{minipage}
+  \vfill
+  \vspace{\belowdisplayskip}
+  \begin{minipage}{0.45\linewidth}
+    \centering
+    \begin{tikzpicture}[minimum size=0.5cm,node distance=1cm]
+      \node[entity] (alpha) {1};
+      \node[entity,above left=of alpha,xshift=15pt] (beta) {2};
+      \node[entity,above right=of alpha,yshift=-5pt,xshift=-5pt] (gamma) {3};
+      \node[entity,right=of gamma] (delta) {4};
+
+      \draw[thick] (alpha) -- (beta);
+      \draw[thick] (beta) -- (gamma);
+      \draw[thick] (alpha) -- (gamma);
+
+      \path[thick] let \p1=($(gamma)-(delta)$),\n1={atan2(\y1,\x1)},\n2={180+\n1} in
+      ($ (delta.\n1)!2pt!90:(gamma.\n2) $) edge node {} ($ (gamma.\n2)!2pt!-90:(delta.\n1) $);
+      \path[thick] let \p1=($(delta)-(gamma)$),\n1={atan2(\y1,\x1)},\n2={180+\n1} in
+      ($ (gamma.\n1)!2pt!90:(delta.\n2) $) edge node {} ($ (delta.\n2)!2pt!-90:(gamma.\n1)
+      $);
+    \end{tikzpicture}
+  \end{minipage}
+  %
+  \begin{minipage}{0.5\linewidth}
+    \begin{definition}[Multigraph]
+      Undirected graph that can store multiple edges between two nodes.
+      \label{def:multigraph}
+    \end{definition}
+  \end{minipage}
+  \caption{Basic Graph Types (Part II).}
+\end{figure}
+
+\noindent Based on these definitions of graph types, the KG is defined.
+\begin{definition}[Knowledge Graph]
+Directed \emph{heterogeneous} multigraph whose node and relation types have
+domain-specific semantics~\citep{website:kamakoti}. These nodes can be of
+different types. From a terminology point of view, the nodes/vertices of a KG
+are often called \emph{entities}, and the directed edges refer to as
+predicates. Moreover, this multigraph has \emph{triple}\footnote{Also called
+\emph{triplets}.} designing a 3-tuple, where each triple defines a
+(\texttt{subject}, \texttt{predicate}, \texttt{object}) tuple\footnote{Some
+authors define this tuple as \texttt{(h, r, t)}. In this definition, \texttt{h}
+is the head entity, \texttt{t} the tail entity, and \texttt{r} the relation
+associating the head with the tail entities.}. For ease of processing, the
+multigraph aspect of the KG can be removed by representing each triple as two
+2-tuple: (\texttt{subject} $\rightarrow$ \texttt{predicate}) and
+(\texttt{predicate} $\rightarrow$ \texttt{object}).
+\end{definition}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../report"
+%%% End:

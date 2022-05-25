@@ -1,0 +1,116 @@
+
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+RDF is a W3C standard that ensures that the data diversity remains
+machine-interpretable by encoding the semantics of these data. Semantic Web and
+Linked Open Data use this standard by interconnecting several sources using KGs,
+which are directed heterogeneous multigraphs composed of triples. Afterward,
+this type of graph is converted into a numerical vector and used for downstream
+ML tasks.
+
+This conversion can be done with RDF2Vec, an unsupervised task-agnostic
+algorithm for numerically representing KG nodes. Since 2016, this algorithm has
+provided good results using Word2Vec, an embedding technique initially used in
+the NLP field. However, the NLP field has made other advances, notably related
+to the Attention mechanism published in 2014 by \textsc{Bahdanau} to solve the
+bottleneck problem of RNNs. Due to this mechanism, the Transformer architecture
+published in 2017 by \textsc{Vaswani} et al. was an alternative to RNNs,
+introducing two new Attention mechanisms: Scaled Dot-Product Attention and
+Multi-Head Attention. This architecture led to the creation of BERT, a
+state-of-the-art NLP embedding technique published in 2018.
+
+Unlike Word2Vec, BERT allows generating contextualized embeddings using
+bidirectional representations. For this purpose, BERT can receive one or two
+sentences which the WordPiece algorithm will then tokenize. WordPiece allows
+BERT, on the one hand, to learn common sub-words and, on the other hand, not to
+replace OOV words with a special token, being a rich source of information. Once
+the text corpus is tokenized, the BERT model is pre-trained using MLM and NSP as
+two unsupervised tasks. This pre-training is useful to mainly help overcome the
+lack of training data and allow the model to understand better a bidirectional
+representation of an input at the sentence and token level.
+
+The objectives of this Master's thesis were to evaluate BERT with Word2Vec and
+FastText and extend RDF2Vec to a new walking strategy and sampling
+strategy. Such an evaluation is essential because few research papers have
+compared the classical BERT model with other embedding techniques. In addition,
+the minor use made of BERT with the KGs is done by creating one of its dedicated
+variances. Finally, creating new strategies allows improving the accuracy of a
+model for specific use-cases by focusing on extracting walks from a KG.
+
+In order to evaluate BERT with FastText and Word2Vec on KGs, a dedicated
+implementation has been proposed. For BERT, it was not possible to use a
+pre-trained model and, therefore, necessary to create this model from
+scratch. For this purpose, the creation of the vocabulary of this new model
+included each special token and the nodes extracted from the walks by a walking
+strategy and a sampling strategy. For the training of BERT, it was first useful
+to tokenize the nodes by adding special tokens to the left and right of each
+node. Then, the pre-training focused only on the MLM since the NSP is of no
+interest since each walk has no semantic links with a second one. Finally, the
+training was done on a data collator dedicated to MLM, and a set of
+hyperparameters was provided, finding a compromise between training time and
+model accuracy.
+
+BERT's evaluation on \texttt{MUTAG} indicated a training time ranging from 25
+minutes to several hours and a generally lower model accuracy than Word2Vec and
+FastText. These results showed that the model's accuracy is proportional to the
+maximum depth per walk and the maximum number of walks. Except for rare cases,
+the use of this BERT model for KGs is not significant enough. The main reason
+being its training time which can be excessively long with results similar to
+Word2Vec and FastText.
+
+This Master's thesis proposed \texttt{SplitWalker} as a new walking
+strategy. Its principle is based on the decomposition of nodes according to a
+splitting function provided by the user. By default, \texttt{SplitWalker} splits
+each node according to its symbols, capital letters, and numbers. When comparing
+this strategy to others with \texttt{MUTAG}, the average rank of the walking
+strategies shows \texttt{SplitWalker} in second place, behind
+\texttt{HALKWalker}. However, a better splitting function could probably have
+improved these results even more.
+
+In addition, a new sampling strategy has been introduced, namely
+\texttt{WideSampler}. This strategy mimics the classification of objects by
+humans, favoring as much as possible the common features between the
+objects. More precisely, \texttt{WideSampler} tends to favor the most frequent
+hops in a KG and those that allow access to more nodes. Moreover, its evaluation
+with \texttt{MUTAG} gives a good model accuracy, allowing it to finish first in
+the benchmarks' average. Added to that, it is likely that \texttt{WideSampler}
+has more impact on larger KGs.
+
+Within this work, it was proposed to improve Word2Vec by extracting the parent
+and child nodes of a root node on the one hand and focusing the positioning of
+this root node within the walks. These recommendations can bring more contexts
+to the root node and improve its frequency of occurrence within the samples
+training. From then on, a better quality generation of root node embeddings.
+
+This Master's thesis had some internal problems that resulted in missing
+benchmarks. These problems were related to the IDLab servers used. Their Stardog
+infrastructure generated significant variants during the benchmarks. More
+precisely, the version of Stardog used had a problem with the garbage collector,
+which prevented the correct memory deallocation. In addition, some benchmarks
+had exceptions thrown due to SPARQL endpoint not being available. This
+unavailability being due to updates and internal problems with the servers.
+
+It was discussed the results obtained. The research papers using BERT pretended
+that the classical BERT model was not interesting with KGs. One of the reasons
+for this is that BERT is limited by its inputs and its architecture is not
+optimized to be used for KGs. Most of the research papers have developed their
+variant of BERT, which can be simple or complex. At most simple, some variants
+have replaced the softmax activation function with a sigmoid activation
+function. The traditional BERT model was only a tiny part of a more significant
+architecture at the most complex.
+
+Research directions for future work have been proposed. Firstly it was
+recommended to evaluate \texttt{SplitWalker} and \texttt{WideSampler} for larger
+KGs to know more about their impact. Added to this, the traditional BERT model
+with larger KGs reinforces the idea that its use is limited. However, another
+test would be not to inject pairs of different walks, but rather pairs of
+\texttt{(subject, object)} 2-tuple to let BERT deduce the predicate. It was said
+that it would also be possible to compare Word2Vec and Fast to other BERT
+variants to know their impact better. In case of bad results, there is also the
+possibility to create a new BERT variant.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../report"
+%%% End:

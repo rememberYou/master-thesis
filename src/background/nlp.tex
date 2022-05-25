@@ -1,0 +1,154 @@
+
+\section{Natural Language Processing Techniques}
+\label{sec:background:nlp:techniques}
+
+There are many NLP techniques. The objective is not to cover every one of them
+but to define certain notions used by more advanced concepts such as Word2Vec.
+
+\begin{definition}[Distributed Representation]
+  Describes the same data features across multiple scalable and interdependent
+  layers~\citep{website:deepai:distributed:representation}. In a distributed word
+  representation, there is a distribution of the word information across vector
+  dimensions.
+  \label{def:distributed:reprensetation}
+\end{definition}
+
+\begin{definition}[Bag-of-Words]
+  Vectorizes a text by counting the number of unique words (also called
+  \emph{tokens}) in a text. Let ``Suikoden is my favorite game, it is a wonderful
+  game!'' be a text. The representation of this text with Bag-of-Words (BoW) is
+  defined as follows:
+  \begin{equation}
+    \left\{\ \text{Suikoden: } 1,\ \text{is: } 2,\ \text{my: } 1,\ \text{favorite: } 1,\
+      \text{game: } 2,\ \text{it: } 1, \ \text{a: } 1,\ \text{wonderful: } 1\ \right\}
+  \end{equation}
+
+  for which this text can be characterized (e.g., \texttt{[1, 2, 1, 1, 2, 1, 1,
+    1]}) by differences measures (e.g., word frequency).
+  \label{def:bow}
+\end{definition}
+
+\begin{definition}[One-Hot Encoding]
+  Quantifies categorical data as binary vectors. Specifically, the belonging of
+  a data point to the $i$th category implies the acquisition of a zero value for
+  the components of this vector, except for the $i$th component, which receives a
+  unitary value.  Let $K$ be several categories in a data set, and
+  $\mathbf{y}^{(i)}$ be a data point in the $i$th class. Mathematically, the
+  following vectorial representation defines such one-hot encoding:
+  \begin{equation}
+    \textbf{y}^{(i)} = \underbrace{\begin{bmatrix}0 & \ldots & 0 &
+        \underbrace{1}_{\textup{index} \;\; i} &0 & \ldots  &
+        0\end{bmatrix}^\top}_{K \times 1}
+    \label{eq:one-hot:encoding}
+  \end{equation}
+
+  where one-hot encoding vectors allow ML algorithms to make better
+  predictions. Such an encoding does not capture words' semantic and syntactic
+  information. Therefore, it does not detect semantic and order difference between
+  the sentences the ``I like cats more than dogs'' and ``I like dogs more than
+  cats'' As a result, \emph{word embeddings} are privileged to detect these
+  differences and allow a better numerical representation of words.
+  \label{def:one-hot:encoding}
+\end{definition}
+
+\begin{definition}[Word Embeddings]
+  Unsupervised model that captures words' semantic and syntactic information
+  using an \emph{embedding matrix}, where the embeddings of a \textit{w} word are
+  a vector $\mathbf{v}_w$.
+  \label{def:word:embeddings}
+\end{definition}
+
+\begin{definition}[Embedding Matrix]
+  Randomized matrix of dimensions $\mathcal{W} \times \mathcal{F}$, where
+  $\mathcal{W}$ is the number of unique words in a document and $\mathcal{F}$ is
+  the number of features that each unique word in this vocabulary has. The
+  \emph{gradient descent} uses these matrix values to find the minima of a
+  function for several \emph{epochs}, the number of complete cycles on a training
+  data set. From then on, closer words in vector space are assumed to have a
+  similar meaning.
+  \label{def:embedding:matrix}
+\end{definition}
+
+\begin{definition}[Window Size]
+  Determines the context words, also called \emph{training samples}, of a target
+  word from a sliding window along with a sentence. Therefore, a window size of
+  two means 2-triple context words, including the related target word and each of
+  the two words on its left and two on its right. Let ``I will always remember
+  her'' be a sentence. The following table defines the context words for a window
+  size of 2:
+  \begin{table}[!ht]
+    \centering
+    \caption{Context Words Determination for a Window Size of 2. }
+    \label{tab:window:size}
+    \begin{tabular}{ccc}
+      \toprule
+      \textbf{Input Text} & \textbf{Target Word} & \textbf{Context Words} \\
+      \midrule
+      \multirow{2}{*}{\colorbox{blue!25}{I} \colorbox{myblue!25}{will} \colorbox{myblue!25}{always} remember her} & \multirow{2}{*}{i} & will \\
+               & & always \\[1.2ex]
+      \multirow{3}{*}{\colorbox{myblue!25}{I} \colorbox{blue!25}{will} \colorbox{myblue!25}{always} \colorbox{myblue!25}{remember} her} & \multirow{3}{*}{will} & i \\
+                          & & always \\
+                          & & remember \\[1.2ex]
+      \multirow{4}{*}{\colorbox{myblue!25}{I} \colorbox{myblue!25}{will} \colorbox{blue!25}{always} \colorbox{myblue!25}{remember} \colorbox{myblue!25}{her}} & \multirow{4}{*}{always} & i \\
+                          & & will \\
+                          & & remember \\
+                          & & her \\[1.2ex]
+      \multirow{3}{*}{I \colorbox{myblue!25}{will} \colorbox{myblue!25}{always} \colorbox{blue!25}{remember} \colorbox{myblue!25}{her}} & \multirow{3}{*}{remember} & will \\
+                          & & always \\
+                          & & her \\[1.2ex]
+      \multirow{2}{*}{I will \colorbox{myblue!25}{always} \colorbox{myblue!25}{remember} \colorbox{blue!25}{her}} & \multirow{2}{*}{her} & always \\
+                          & & remember \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  In Table \ref{tab:window:size}, the target word highlighted in blue is
+  modified at each iteration starting from left to right, considering two words
+  forward and backward (highlighted in a lighter blue). As such, the context for a
+  given sentence are known.
+  \label{def:window:size}
+\end{definition}
+
+\begin{definition}[Stop Words]
+  Commonly used words (e.g., ``an'', ``the'', and ``is'') having little
+  value for training a model and are therefore considered noise in a training
+  data set.
+  \label{def:stop:words}
+\end{definition}
+
+  % \begin{definition}[Mean] Averages of some data. Let $n$ be the data and $\mathbf{x}$ be a
+  %   sample. The mean of these data is defined as:
+  %   \begin{equation}
+  %     \mathrm{\mu} = \frac{1}{n}\sum^n_{i=1}x_i
+  %     \label{eq:mean}
+  %   \end{equation}
+  % \label{def:mean}
+  % \end{definition}
+
+  % \begin{definition}[Variance]
+  %   Measures how spread a data point is from an average. Let $\mathrm{\mu}$ be the
+  %   mean of $n$ data. The variance of a random variable $X$ is defined as:
+  %   \begin{equation}
+  %     \mathrm{Var}(X) = E\left[\left(X - \mu\right)^2\right]
+  %     \label{eq:variance}
+  %   \end{equation}
+  %   \label{def:variance}
+  % \end{definition}
+
+  % \begin{definition}[Standard Deviation]
+  %   Measures the dispersion of the data around their center or how they are spread
+  %   out in a data set. Let $\mathrm{Var}$ be the variance of $n$ data. The standard
+  %   deviation is defined as:
+  %   \begin{equation}
+  %     \mathrm{\sigma} = \sqrt{\mathrm{Var}(n)}
+  %     \label{eq:standard:deviation}
+  %     \label{def:standard:deviation}
+  %   \end{equation}
+
+  %   where unlike variance, standard deviation is measured using the same units as the data.
+  % \end{definition}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../report"
+%%% End:

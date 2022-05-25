@@ -1,0 +1,225 @@
+
+\chapter{RDF2Vec}
+\label{chap:rdf2vec}
+
+Resource Description Framework To Vector (RDF2Vec) is an unsupervised and
+task-agnostic algorithm to numerically represent nodes of a KG in an embedding
+matrix that downstream ML tasks can use. RDF2Vec is unsupervised as it only
+relies on the neighborhood of an entity to create embeddings and therefore does
+not require any information about the node labels. Precisely, the dimensions
+(e.g., $K \times 500$) of this embedding matrix result from the walk extraction
+(e.g., $K$) and vector size (e.g., 500).
+
+\section{Walk Extraction}
+\label{sec:rdf2vec:walk:extraction}
+
+This algorithm starts using a \emph{walking strategy} on a provided KG to
+extract these walks, collecting an $n$-tuple of nodes starting with a root node
+following a sequence of predicates and objects. Using the similarities shared by
+natural language and graphs, these walks then serve as sentences for existing
+NLP techniques, such as Word2Vec, to learn the embeddings of the root nodes of
+this KG provided by a user.
+
+\begin{figure}[!ht]
+  \centering
+  \subfloat[Step I]{
+    \begin{tikzpicture}[minimum size=2cm,node distance=1cm]
+      \node[entity,fill=myblue,font=\large,scale=0.6] (john) {\textsc{John}};
+      \node[entity,font=\large,left=of john,scale=0.6] (friendOf){friendOf};
+      \node[entity,font=\large,left=of friendOf,scale=0.6] (smith) {\textsc{Smith}};
+      \node[entity,font=\large,right=of john,scale=0.6] (hasCat) {hasCat};
+      \node[entity,font=\large,right=of hasCat,scale=0.6] (felix) {\textsc{Felix}};
+
+      \draw[arrow] (john) -- node[midway,yshift=0.4cm] {\small{2}} (hasCat);
+      \draw[arrow] (hasCat) -- node[midway,yshift=0.4cm] {\small{1}} (felix);
+      \draw[arrow] (john) -- node[midway,yshift=0.4cm] {\small{1}} (friendOf);
+      \draw[arrow] (friendOf) -- node[midway,yshift=0.4cm] {\small{1}} (smith);
+    \end{tikzpicture}
+  }
+  \vfill
+    \subfloat[Step II]{
+    \begin{tikzpicture}[minimum size=2cm,node distance=1cm]
+      \node[entity,font=\large,scale=0.6] (john) {\textsc{John}};
+      \node[entity,font=\large,left=of john,scale=0.6] (friendOf){friendOf};
+      \node[entity,font=\large,left=of friendOf,scale=0.6] (smith) {\textsc{Smith}};
+      \node[entity,fill=myblue,font=\large,right=of john,scale=0.6] (hasCat) {hasCat};
+      \node[entity,font=\large,right=of hasCat,scale=0.6] (felix) {\textsc{Felix}};
+
+      \draw[arrow] (john) -- node[midway,yshift=0.4cm] {\small{2}} (hasCat);
+      \draw[arrow] (hasCat) -- node[midway,yshift=0.4cm] {\small{1}} (felix);
+      \draw[arrow] (john) -- node[midway,yshift=0.4cm] {\small{1}} (friendOf);
+      \draw[arrow] (friendOf) -- node[midway,yshift=0.4cm] {\small{1}} (smith);
+    \end{tikzpicture}
+  }
+  \vfill
+  \subfloat[Step III]{
+    \begin{tikzpicture}[minimum size=2cm,node distance=1cm]
+      \node[entity,font=\large,scale=0.6] (john) {\textsc{John}};
+      \node[entity,font=\large,left=of john,scale=0.6] (friendOf){friendOf};
+      \node[entity,font=\large,left=of friendOf,scale=0.6] (smith) {\textsc{Smith}};
+      \node[entity,font=\large,right=of john,scale=0.6] (hasCat) {hasCat};
+      \node[entity,fill=myblue,font=\large,right=of hasCat,scale=0.6] (felix) {\textsc{Felix}};
+
+      \draw[arrow] (john) -- node[midway,yshift=0.4cm] {\small{2}} (hasCat);
+      \draw[arrow] (hasCat) -- node[midway,yshift=0.4cm] {\small{1}} (felix);
+      \draw[arrow] (john) -- node[midway,yshift=0.4cm] {\small{1}} (friendOf);
+      \draw[arrow] (friendOf) -- node[midway,yshift=0.4cm] {\small{1}} (smith);
+    \end{tikzpicture}
+  }
+  \caption{Walk Extraction for an Oriented Graph.}
+  \label{fig:rdf2vec:walk:extraction}
+\end{figure}
+
+In Figure \ref{fig:rdf2vec:walk:extraction}, a KG is composed of five nodes and
+four edges. Each edge is related to a weight determined by a \emph{sampling
+strategy} that can assign these weights either randomly or guided by a
+particular metric, called \emph{biased walks}. These edge weights are helpful to
+the walking strategy to identify the following neighboring entity to extract
+in a walk. The walk extraction starts with \texttt{John} as the root node,
+including \texttt{friendOf} and \texttt{hasCat} as possible candidates for the
+next hop. However, as the \texttt{hasCat} edge has a higher weight than the
+\texttt{friendOf} edge, the hop to \texttt{hasCat} is preferred. After this hop,
+the walking strategy updates its list of candidates with the neighbors of the
+current node. Finally, the process continues to iterates until this walking
+strategy returns an exhaustive list of walks or reaches a specified predefined
+depth covering the number of successive tuples within a walk. From then on,
+there is the extraction of the 3-tuple (\texttt{John}, \texttt{hasCat},
+\texttt{Felix}) walk.
+
+The original RDF2Vec implementation uses a random walking strategy to extract a
+limited number. The particularity of this walking strategy implies the
+extraction of a random hop\footnote{Originally RDF2Vec preferred a random walk.}
+when neighboring hops have the same weight. The random walking strategy applies
+two algorithms to extract walks: the Depth-first search (DFS) and Breadth-first
+search (BFS). The former traverses a graph as deep as possible before retracing
+its steps. In contrast, the latter crosses every neighboring node of the same
+depth before crossing those of a different depth. Therefore, if there is a
+necessity to extract a specific number of walks, DFS is used by this
+strategy. Otherwise, the random walker strategy picks BFS to extract every walks
+of a KG.
+
+\subsection{Walking Strategies}
+\label{subsec:rdf2vec::walking:strategies}
+
+After the publication of RDF2Vec, several walking strategies became
+available~\citep{inproceedings:cochez}, where every walking strategy can be an
+extraction (\texttt{type 1}) or transformation (\texttt{type 2}) technique
+~\citep{article:vandewiele}. Each of these strategies brings its particularity,
+making it preferable to choose them in at least one use case.
+
+As the name implies, extraction techniques focus on extracting walks, usually so
+that these walks provide richer information to produce a model resulting in the
+highest possible accuracy. This category includes random walking strategy and
+\emph{Community Hops}. Based on relationships not explicitly modeled in a KG,
+the latter groups' nodes with similar properties through community detection. However,
+both walking strategies rely on the BFS and DFS algorithms, including or not
+some variations.
+
+The transformation techniques categorize the walking strategies that transform
+the extracted walks provided by a \texttt{type 1} walking strategy. As they are
+easier to implement, this type includes more walking strategies than
+\texttt{type 1}. This technique's primary purpose is to define
+\emph{one-to-many} or \emph{many-to-one} cardinality between the old node's
+labels and the new ones. If there is a \texttt{one-to-one} cardinality, no
+additional information is gained and the original walking strategy could be
+used.
+
+In a non-exhaustive way, the following walking strategies of \texttt{type 2}
+rely on the transformation of randomly extracted walks:
+\begin{itemize}
+\item \textbf{Anonymous Walk}: transforms each vertex name other than the root
+node into positional information to anonymize the randomly extracted walks.
+
+\item \textbf{Hierarchical Random Walks} (\textbf{HALK}): removes rare hops from randomly
+extracted walks, increasing the quality of the generated embeddings while
+reducing memory usage.
+
+With this strategy, the suppression of a walk occurs when this walk only
+contains the root node following one or more infrequent hop(s), as it will not
+provide additional information.
+
+\item \textbf{N-Gram}: transforms the $n$-grams in random walks to define a
+mapping from \emph{one-to-many}. The intuition behind this strategy is that the
+predecessors of a node that two different walks have in common can be different.
+
+\item \textbf{Walklets}: transforms randomly extracted walks into walklets which
+are walks of size one or two, including the root node and potentially another
+node that can be a predicate or an object.
+
+\item \textbf{Weisfeiler-Lehman}: transforms the nodes of the extracted random
+walks, providing additional information about the entity representations only
+when a maximum number of walks is not specified.
+\end{itemize}
+
+However, the implementations of these sampling strategies in \texttt{pyRDF2Vec}
+relied on extracting child nodes, not parent nodes, which lost context for a
+root node.
+
+\subsection{Sampling Strategies}
+\label{subsec:rdf2vec:sampling:strategies}
+
+The sampling strategies essentially allow to better deal with larger KGs. A
+naive implementation randomly samples a fixed number of walks for each entity to
+keep the total number of walks limited. Since then, the
+community~\citep{inproceedings:cochez,article:mukherjee,article:taweel} has
+suggested several metrics to compute the sampling weights while walking.
+
+Although sampling strategies allow the extraction of large KGs, most of these
+strategies require working on the entire KG to assign weights to edges. However,
+some KGs are so large that they need to be stored in a
+\emph{triplestore}\footnote{Database designed for the storage and retrieval of
+RDF.} and made available through a SPARQL endpoint. Therefore, one way to use
+these sampling strategies is to load parts of large KGs, assign weights, and
+start the walk extraction. Finally, the different walks extracted for these
+parts of KGs would be concatenated and returned.
+
+\section{Shortcomings}
+\label{sec:rdf2vec:shortcomings}
+
+The node representation made by RDF2Vec has already achieved great predictive
+performances on several data sets in various fields. However, RDF2Vec still has
+a few shortcomings. In a non-exhaustive way:
+\begin{itemize}
+\item \textbf{RDF2Vec does not scale to large KGs}: the walk extraction grows
+exponentially with the predefined depth. This behavior is unacceptable with KGs
+containing many nodes, mainly when these KGs contain many highly connected
+nodes.
+
+\item \textbf{RDF2Vec cannot deal with literals in the KG}: this algorithm
+extracts node as \emph{non-ordinal categorical} data, which discard a
+considerable amount of rich information that \emph{literals} can provide. In
+other words, nodes can be from different types, but RDF2Vec extracts these nodes
+as a name without any classification instead of conserving their types.
+
+\item \textbf{RDF2Vec cannot deal with dynamic graphs}: adding a new entity in a
+KG implies re-training the model generated by the embedding technique. This
+re-training is undesirable, especially when the training time of a model is
+substantial.
+
+\item \textbf{RDF2Vec uses a simple data structure for storing walks}:
+Extracting more complex data structures, such as trees, or modifying the walking
+algorithm to introduce different inductive \emph{biases} could result in higher
+quality embeddings. Consequently, these quality embeddings would improve the
+model's accuracy.
+
+\item \textbf{RDF2Vec uses an embedding technique that is no longer state of the
+art in NLP}: currently, RDF2Vec uses Word2Vec as an embedding
+technique. However, more recent NLP techniques such as BERT could be a better
+alternative to Word2Vec and improve the model's accuracy.
+\end{itemize}
+
+The community has proposed solutions to address the shortcomings mentioned above
+to improve this representation of nodes. Among these, optimization mechanisms
+(e.g., caching and multiprocessing) to better handle large KGs and an
+\emph{online learning} implementation to update the vocabulary of nodes learned
+by RDF2Vec. In addition, a user could extract interesting literals by specifying
+a sequence of predicates followed by a walking strategy. Finally, other
+embedding techniques than Word2Vec were also proposed, such as
+\emph{KGloVe}\footnote{\url{https://datalab.rwth-aachen.de/embedding/KGloVe/}},
+which uses the Global Vectors for Word Representation (GloVe) embedding
+technique.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "latex"
+%%% End:

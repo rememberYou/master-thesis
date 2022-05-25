@@ -1,0 +1,118 @@
+
+\chapter{Objectives}
+\label{chap:objectives}
+
+This chapter covers the specifications expected by this Master's thesis and the
+problems faced in its elaboration. In addition, each specification is followed
+by a summary of what was done to get a better idea of the overall report.
+
+\section{Specifications}
+\label{sec:objectives:specifications}
+
+In 2018, BERT was released and outperformed all other existing techniques on
+various ML tasks related to various fields. This Master's thesis aims to
+integrate BERT into
+\texttt{pyRDF2Vec}\footnote{\url{https://github.com/IBCNServices/pyRDF2Vec/}},
+but more specifically to evaluate its impact in terms of runtime, predictive
+performance, and memory usage using different combinations of walking and
+sampling strategies. Moreover, by reading literature from general graph-based ML
+and NLP research, inspiration can be found to design new sampling and walking
+strategies that result in improved predictive performances by exploiting the
+properties of BERT. The specifications of this Master's thesis are composed of
+the following four points:
+\begin{enumerate}
+\item \textbf{Support BERT and other embedding techniques for comparison
+purposes}: at least the BERT embedding technique should be integrated into
+\texttt{pyRDF2Vec} and be compared to the Word2Vec technique, which is currently
+used. Additionally, the extension of Word2Vec, namely FastText, will also have
+to be implemented and be compared to know its impact.
+
+For this Master's thesis, BERT and FastText have been implemented and integrated
+within the \texttt{pyRDF2Vec} library. Added to this implementation is a new
+architecture for \texttt{pyRDF2Vec} that easily allows other embedding
+techniques. Since Word2Vec already exists in the library, this Master thesis
+proposed a better walk extraction to improve the model's accuracy.
+
+\item \textbf{Evaluate the impact of BERT}: A thorough benchmarking study to
+evaluate the impact of the BERT embedding technique on different dimensions will
+have to be conducted. For this, data sets having different properties and
+stemming from different domains will have to be selected. Moreover, a rigorous
+framework that performs the required experiments and logs all of these results
+will have to be developed.
+
+For this Master's thesis, BERT, Word2Vec, and FastText are compared on
+\texttt{MUTAG}, a small KG. In addition to these benchmarks of embedding
+techniques, the \texttt{pyRDF2Vec} library was modernized, allowing to get more
+information with the \texttt{verbose} parameter of the
+\texttt{RDF2VecTransformer} class.
+
+\newpage
+
+\item \textbf{Support of new walking strategies for RDF2Vec}: while an initial
+set of five simple walking strategies are already implemented in
+\texttt{pyRDF2Vec}, many other alternatives exist. Implementing more walking
+strategies would allow more extensive and detailed comparisons for embedding
+techniques.
+
+For this Master's thesis, the \texttt{SplitWalker} walking strategy is proposed and
+implicitly introduced some of its variants. Finally, this Master's thesis offers
+some benchmarks related to \texttt{SplitWalker} and other existing walking strategies.
+
+\item \textbf{Support of new sampling strategies for RDF2Vec}: similarly, other
+sampling strategies can be created and implemented in
+\texttt{pyRDF2Vec}. Therefore, it will be possible to see the impact of the
+choice of a walking strategy and a sampling strategy with the performances
+related to BERT and other embeddings techniques.
+
+For this Master's thesis, the \texttt{WideSampler} walking strategy is proposed,
+leading to other variants of the latter. In addition, this Master's thesis
+evaluates \texttt{WideSampler} with other existing sampling strategies to knows
+its impact.
+\end{enumerate}
+
+\section{Problems Encountered}
+\label{sec:objectives:problems}
+
+This section discusses the problems that have been encountered and why some
+benchmarks are missing. Initially, benchmarks related to bigger KGs such as
+\texttt{AM} and \texttt{DBP:Cities} should have been done. Therefore, it is
+helpful to understand the reasons for this to prevent these errors from
+recurring.
+
+\subsection{Garbage Collector}
+\label{subsec:garbage:collector}
+
+This Master's thesis being coupled with the internship, the same servers were
+used. Due to an internal problem with IDLab's server infrastructure, a loss of
+time equivalent to one and a half months of work was made. Therefore, this loss
+of time had repercussions on this Master's thesis. Specifically, the benchmarks
+related to BERT are not presented for this version of the report. However, they
+will be added for the next version. Moreover, some benchmarks had to be
+shortened due to time constraints.
+
+For more information related to this issue, IDLab servers use the
+Stardog\footnote{\url{https://www.stardog.com/}} infrastructure, which is
+implemented in Java. Therefore, the different benchmarks for the internship and
+Master's thesis recorded high variants. After several weeks of debugging,
+thinking that this was a \texttt{pyRDF2Vec} issue, a Stardog engineer confirmed
+that the issue was related to their infrastructure. In more detail, the concern
+was the lack of RAM release from the servers due to garbage collection. As a
+result, new data was being saved directly to a physical disk, which resulted in
+much higher latencies than RAM. From then on, this was reflected in the variance
+of the results.
+
+\subsection{Exceptions Raised}
+\label{subsec:exception:raised}
+
+In addition to the problems related to the garbage collector, exceptions are
+encountered from time to time during SPARQL Protocol and RDF Query Language
+(SPARQL) queries. These exceptions are due to the inaccessible locally hosted
+SPARQL endpoint during updates or internal network problems. As a result, after
+more than three attempts to retrieve the walks of a provided entity, an
+exception is thrown, which makes the benchmarks stop. Since these benchmarks can
+take several days, it also delayed other benchmarks.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "latex"
+%%% End:

@@ -1,0 +1,42 @@
+
+\chapter{Benchmarks}
+\label{chap:benchmarks}
+
+For these benchmarks, only the maximum number of walks per entity and the
+maximum depth per walk is varied. Furthermore, due to a time issue (cf. Section
+\ref{sec:objectives:problems}) these benchmarks are performed on \texttt{MUTAG},
+a graph of moderate size composed of
+\SI{74567}{triples}\footnote{\textbf{SELECT} (COUNT(*) AS ?triples)
+\textbf{WHERE} \{ ?s ?p ?o \}} \SI{22534}{entities }\footnote{\textbf{SELECT}
+(COUNT(\textbf{DISTINCT} ?s) AS ?entities) \textbf{WHERE} \{ ?s a \}}, and
+\SI{24}{relations}\footnote{\textbf{SELECT} (COUNT(\textbf{DISTINCT} ?p) AS
+?relations) \textbf{WHERE} \{ ?s ?p ?o \}}. Finally, each value entered in these
+benchmarks is the result of the average of five values.
+
+\section{Setup}
+\label{sec:setup}
+
+Benchmarks related to embeddings techniques and walking strategies are directly
+launched on IDLab's\footnote{Research group of imec.} servers with \SI{4}{CPUs},
+\SI{64}{\giga\byte} RAM, and one GPU. Those related to sampling strategies are
+launched directly on a ThinkPad machine with \SI{4}{CPUs} and
+\SI{16}{\giga\byte} of RAM. This physical device change is made since, except
+for \texttt{UniformSampler}, the sampling strategies only work on locally stored
+KGs. As the IDLab servers interact with the KGs via SPARQL endpoints, they were
+not used for these benchmarks. Finally, the benchmarks use 340 training entities
+and attempt to predict 68 test entities, which is a standard for \texttt{MUTAG}.
+
+\section{Results}
+\label{sec:results}
+
+This section contains the results of the different embedding techniques, walking
+strategies, and sampling strategies for \texttt{MUTAG}.
+
+\input{src/benchmarks/embedders}
+\input{src/benchmarks/walkers}
+\input{src/benchmarks/samplers}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../master-thesis"
+%%% End:

@@ -1,0 +1,156 @@
+
+\chapter{Discussion}
+\label{chap:discussion}
+
+The results obtained with BERT are less conclusive than those expected. Creating
+a BERT model requires considerable time, taking at least several hours or days
+of training. In addition, BERT has a lower accuracy than Word2Vec and FastText
+and needs to be re-trained for each KG, making its use not pragmatic. However,
+this evaluation does not mean that the use of BERT should be prohibited. Within
+this report, the research focused on three main fields:
+\begin{enumerate}
+\item the walks extraction from a KG;
+\item the implementation of the BERT model for \texttt{pyRDF2Vec};
+\item the fine-tuning of BERT.
+\end{enumerate}
+
+The research papers referred to in Section \ref{section:related:work:bert} are
+related to the implementation of BERT within KGs. However, most of them needed
+to create a new architecture that bears few or many changes compared to
+BERT. Therefore, it is interesting to examine the creation of these
+architectures.
+
+\section{BERT's Architecture}
+\label{sec:discussion:architecture}
+
+Understanding the implementation of the BERT variant architecture in the
+research papers would provide insight into the causes of the inconclusive
+results obtained.
+
+\subsection{KG-BERT}
+\label{chap:discussion:kg-bert}
+
+KG-BERT completes a KG by predicting missing tuples based on other existing
+tuples. The design of this architecture has the particularity that BERT can be
+trained based on extracted triples. For this training purpose, each triple
+injection consists of taking either the name or the description of their
+nodes. In this way, KG-BERT considers every node as a word. However, KG-BERT
+proposes two ways to inject these triples:
+\begin{enumerate}
+\item by varying the relevance of a relation using noise to train BERT to deduce
+the plausibility of this relation;
+\item by using pairs of entities to train BERT to deduce the relation between
+these pairs of entities.
+\end{enumerate}
+
+Based on this idea, this Master's thesis also tested BERT again on MUTAG and
+BGs. However, the results were still not more conclusive than those of Word2Vec
+and FastText.  Looking at the
+KG-BERT\footnote{\url{https://github.com/yao8839836/kg-bert}} implementation in
+more detail, the latter uses a sigmoid function to calculate the triple score
+instead of the original BERT softmax function. In addition, KG-BERT has adapted
+its cross-entropy loss computation by mainly considering the triple
+labels. These adjustments likely played an essential role in the success of
+KG-BERT. However, this BERT variant has not been compared with Word2Vec and uses
+other datasets than those used for this Master's thesis.
+
+\subsection{BERT-INT}
+\label{subsec:discussion:bert-int}
+
+BERT-INT predicts two identical entities across multiple KGs by using the name
+or description of the current entities, but this time, also of those of their
+neighbors. Since there is no propagation of information within neighboring
+entities, BERT-INT has the particularity to ignore the characteristic structure
+of the KGs.
+
+Unlike KG-BERT, which has minor modifications compared to the BERT model,
+BERT-INT uses BERT as a basic representation unit. Specifically, BERT is used to
+generate embeddings of the entity name and description and their attributes,
+including values. From then on, the BERT-INT architecture combines several BERT
+units using a pairwise margin loss to fine-tune the resulting BERT interaction
+model. As a result, the BERT-INT architecture is more consistent. The resulting
+model consists of the name/description-view interaction plus the ones from the
+neighbor-view and the attribute-view.
+
+\subsection{Graph-BERT}
+\label{sec:discussion:graph-bert}
+
+Graph-BERT mainly helps with node classification and graph clustering tasks. The
+main feature of this variant BERT is that it relies solely on the Attention
+mechanism, without the necessity to use graph convolution or aggregation
+operations. To train the model, Graph-BERT uses unbound subgraphs sampled in
+their local contexts to avoid the use of KGs, which can be immense. For this
+purpose, there is an injection of sampled nodes and their local context into the
+model, which is then refined for the corresponding task. Finally, The
+Graph-BERT architecture is composed of five parts:
+\begin{multicols}{2}
+\begin{enumerate}
+\item a linkless subgraph batching;
+\item the node input vector embeddings;
+\item a graph transformer-based encoder;
+\item a representation fusion;
+\item a functional component that generates different output according to the
+  target application task.
+\end{enumerate}
+\end{multicols}
+
+\noindent Each of these parts plays an important role in the success of
+Graph-BERT. In addition, this variant also uses BERT as a small part of its
+architecture.
+
+\subsection{K-BERT}
+\label{subsec:discussion:k-bert}
+
+With Graph-BERT, K-BERT has one of the most advanced architectures compared to
+other BERT variants related to KG. The latter uses four modules:
+\begin{enumerate}
+\item Knowledge layer: injects relevant triples from a KG, converting the
+original sentence into a knowledge-rich sentence tree.
+\item Embedding layer: convert a phrase tree into an embedding representation as
+the basic BERT architecture can do, except that the embedding layer is a
+sentence tree instead of a sequence of tokens.
+\item Seeing layer: uses a visible matrix to restrict the visible area of each
+token. This restriction ensures that an excess of knowledge does not lead to
+changes in the meaning of the original sentence. According to the authors, this
+layer is an integral part of the K-BERT success.
+\item Mask-Transformer layer: allows BERT to receive the visible matrix as input
+using a multiple block stack of mask self-attention blocks.:
+\end{enumerate}
+
+\noindent Even if there are similarities with BERT, K-BERT gets its good
+performance to a more advanced architecture than the one initially presented by
+BERT.
+
+\section{Future Works}
+\label{sec:discussion:futur}
+
+From the set of architectures of the KG-oriented BERT variants stated above,
+KG-BERT is the one that keeps an almost similar architecture to the basic BERT
+architecture. Creating such a variant reinforces the idea that
+applying the BERT model to a KG without modifying its architecture is probably
+not interesting. This Master's thesis focused on only injecting pairs of walks
+to BERT. Probably injecting subject/object pairs as KG-BERT does to train BERT
+to predict predicates would lead to better results. However, given the lack of
+context and a non-suitable internal architecture, it is likely that the
+traditional BERT model would not be sufficient to have a clear improvement of
+model accuracy compared to Word2Vec. In particular, if Word2Vec uses the
+recommendations made by this Master's thesis to include the root node in more
+training samples.
+
+As the objective of this Master's thesis was to evaluate BERT, no new variants
+have been implemented. Such an implementation would probably be more suitable
+for a PhD degree where more research time is allocated. However, this report has
+the privileges to closes several bad leads. It has allowed understanding better
+where its success comes from for its few evaluations within KGs. Added to that,
+none of these papers have evaluated their version of BERT with Word2Vec. Various
+possibilities for future work around this remain open such as evaluating the
+previously stated KG-oriented BERT models with Word2Vec and other embedding
+techniques. In addition, there is nothing to prevent the recreation of a new
+BERT architecture for KGs if this proves necessary in the long run. Finally, it
+may be interesting to evaluate \texttt{SplitWalker} and \texttt{WideSampler} on
+larger KGs and to know their impact compared to other strategies.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../report"
+%%% End:

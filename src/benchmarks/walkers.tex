@@ -1,0 +1,236 @@
+
+\subsection{Walking Strategies}
+\label{subsec:walkers}
+
+Each walking strategy is evaluated using \texttt{UniformSampler} as sampling strategy and
+Word2Vec as embedding technique. For these benchmarks, Word2Vec keeps the same
+hyperparameters as given in Section \ref{subsec:embedding:techniques}, namely
+ten epochs, twenty negative words and a vector size of 500.
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccS[table-format=2.2]@{${}\pm{}$}S[table-format=1.2]c}
+      \toprule
+      \textbf{Walker} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{RandomWalker} & \multirow{6}{*}{2} & \multirow{6}{*}{250} & \textbf{77.94} & 2.08 & 1 \\
+      \texttt{NGramWalker(grams=3)} & & & 76.47 & 1.32 & 2 \\
+      \texttt{HALKWalker(freq\_threshold=0.01)} & & & 75.59 & 2.39 & 3 \\
+      \texttt{SplitWalker} & & & 74.71 & 2.53 & 4 \\
+      \texttt{WalkletWalker} & & & 72.06 & 1.32 & 5 \\
+      \texttt{AnonymousWalker} & & & 65.29 & 1.76 & 6 \\
+      \midrule
+      \texttt{HALKWalker(freq\_threshold=0.01)} & \multirow{6}{*}{4} & \multirow{6}{*}{250} & \textbf{78.82} & 1.50 & 1 \\
+      \texttt{SplitWalker} & & & 77.35 & 4.01 & 2 \\
+      \texttt{RandomWalker} & & & 76.76 & 6.06 & 3 \\
+      \texttt{NGramWalker(grams=3)} & & & 75.88 & 3.90 & 4 \\
+      \texttt{WalkletWalker} & & & 73.82 & 1.95 & 5 \\
+      \texttt{AnonymousWalker} & & & 66.47 & 1.44 & 6 \\
+      \midrule
+      \texttt{HALKWalker(freq\_threshold=0.01)} & \multirow{6}{*}{6} & \multirow{6}{*}{250} & \textbf{81.18} & 4.87 & 1 \\
+      \texttt{SplitWalker} & & & 79.71 & 2.16 & 2 \\
+      \texttt{NGramWalker(grams=3)} & & & 77.65 & 1.95 & 3 \\
+      \texttt{RandomWalker} & & & 75.29 & 2.16 & 4 \\
+      \texttt{WalkletWalker} & & & 71.76 & 1.10 & 5 \\
+      \texttt{AnonymousWalker} & & & 67.65 & 1.86 & 6 \\
+      \bottomrule
+    \end{tabular}
+    }%
+  \caption{Evaluation of the Accuracy of Walking Strategies for \texttt{MUTAG} According
+    to the Maximum Depth per Walk.}
+  \label{benchmarks:walkers:mutag:depth}
+\end{table}
+
+In Table \ref{benchmarks:walkers:mutag:depth}, regardless of the maximum depth
+per walk chosen for the same number of walks per entity, \texttt{HALKWalker}
+indicates a model's accuracy above \texttt{SplitWalker}. However, these two
+walking strategies provide better results for more significant maximum depths per
+walk. While \texttt{RandomWalker} indicates a good model's accuracy for small maximum
+depth per walk.
+
+\newpage
+
+\begin{figure}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}
+    \begin{axis}[
+      scale only axis,
+      grid=major,
+      grid style={dashed,gray!30},
+      height=6cm,
+      width=9cm,
+      legend cell align={left},
+      legend entries={
+        \texttt{AnonymousWalker},
+        \texttt{HALKWalker(freq\_threshold=0.01)},
+        \texttt{NGramWalker(grams=3)},
+        \texttt{RandomWalker},
+        \texttt{SplitWalker},
+        \texttt{WalkletWalker},
+      },
+      legend style={
+        legend pos=outer north east,
+        font=\small
+      },
+      ylabel={Accuracy},
+      xlabel={Maximum Depth per Walk},
+      xtick={2, 4, 6},
+      ytick={65.30,67,71.80,73.80,76,78,79.70,81.20},
+      ]
+
+      \addplot[brown,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/walkers/max-depth/anonymous.csv};
+      \addplot[yellow,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/walkers/max-depth/halk.csv};
+      \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/walkers/max-depth/ngram.csv};
+      \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/walkers/max-depth/random.csv};
+      \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/walkers/max-depth/split.csv};
+      \addplot[darkPurple,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/walkers/max-depth/walklet.csv};
+    \end{axis}
+  \end{tikzpicture}
+  }%
+  \caption{Evaluation of the Accuracy of Walking Strategies for MUTAG According to the Maximum Depth per Walk.}
+  \label{fig:benchmarks:walkers:depth}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:walkers:depth}, the curve of \texttt{SplitWalker}
+and \texttt{HALKWalker} have an identical trajectory, except that
+\texttt{HALKWalker} indicates better model's accuracy than
+\texttt{SplitWalker}. In addition, they return better model's accuracy than the
+other walking strategies.
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccS[table-format=2.2]@{${}\pm{}$}S[table-format=1.2]c}
+      \toprule
+      \textbf{Walker} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{SplitWalker} & \multirow{6}{*}{4} & \multirow{6}{*}{100} & \textbf{79.12} & 4.20 & 1 \\
+      \texttt{HALKWalker(freq\_threshold=0.01)} & & & 77.65 & 2.53 & 2 \\
+      \texttt{WalkletWalker} & & & 73.82 & 1.95 & 3 \\
+      \texttt{RandomWalker} & & & 72.35 & 3.77 & 4 \\
+      \texttt{NGramWalker(grams=3)} & & & 68.82 & 3.99 & 5 \\
+      \texttt{AnonymousWalker} & & & 65.59 & 1.18 & 6 \\
+      \midrule
+      \texttt{SplitWalker} & \multirow{6}{*}{4} & \multirow{6}{*}{250} & \textbf{77.35} & 2.56 & 1 \\
+      \texttt{HALKWalker(freq\_threshold=0.01)} & & & 76.76 & 3.65 & 2 \\
+      \texttt{RandomWalker} & & & 76.18 & 1.71 & 3 \\
+      \texttt{NGramWalker(grams=3)} & & & 73.24 & 3.40 & 4 \\
+      \texttt{WalkletWalker} & & & 71.76 & 1.10 & 5 \\
+      \texttt{AnonymousWalker} & & & 66.76 & 1.18 & 6 \\
+      \midrule
+      \texttt{HALKWalker(freq\_threshold=0.01)} & \multirow{6}{*}{4} & \multirow{6}{*}{500} & \textbf{79.12} & 3.99 & 1 \\
+      \texttt{SplitWalker} & & & 77.35 & 1.50 & 2 \\
+      \texttt{WalkletWalker} & & & 77.06 & 3.55 & 3 \\
+      \texttt{RandomWalker} & & & 72.06 & 1.32 & 4 \\
+      \texttt{NGramWalker(grams=3)} & & & 71.76 & 1.10 & 5 \\
+      \texttt{AnonymousWalker} & & & 65.80 & 1.44 & 6 \\
+      \bottomrule
+    \end{tabular}
+    }%
+  \caption{Evaluation of the Accuracy of Walking Strategies for \texttt{MUTAG} According
+    to the Maximum Number of Walks per Entity}
+  \label{tab:benchmarks:walkers:mutag:walks}
+\end{table}
+
+In Table \ref{tab:benchmarks:walkers:mutag:walks}, regardless of the number of
+walks chosen for the same maximum depth per walk, \texttt{SplitWalker} indicates
+a correct model's accuracy above the average of walking
+strategies. Specifically, \texttt{SplitWalker} allows an average model's
+accuracy of \SI{78.53}{\percent}.
+
+\newpage
+
+\begin{figure}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}
+    \begin{axis}[
+      scale only axis,
+      grid=major,
+      grid style={dashed,gray!30},
+      height=6cm,
+      width=9cm,
+      legend cell align={left},
+      legend entries={
+        \texttt{AnonymousWalker},
+        \texttt{HALKWalker(freq\_threshold=0.01)},
+        \texttt{NGramWalker(grams=3)},
+        \texttt{RandomWalker},
+        \texttt{SplitWalker},
+        \texttt{WalkletWalker},
+      },
+      legend style={
+        legend pos=outer north east,
+        font=\small
+      },
+      ylabel={Accuracy},
+      xlabel={Maximum Number of Walks per Entity},
+      xtick={100,250,500},
+      ytick={65.80,68.80,72,73.20,76,77.50,79.10},
+      ]
+
+      \addplot[brown,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_walk,y=accuracy,col sep=comma] {data/walkers/max-walks/anonymous.csv};
+      \addplot[yellow,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_walk,y=accuracy,col sep=comma] {data/walkers/max-walks/halk.csv};
+      \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_walk,y=accuracy,col sep=comma] {data/walkers/max-walks/ngram.csv};
+      \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_walk,y=accuracy,col sep=comma] {data/walkers/max-walks/random.csv};
+      \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_walk,y=accuracy,col sep=comma] {data/walkers/max-walks/split.csv};
+      \addplot[darkPurple,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_walk,y=accuracy,col sep=comma] {data/walkers/max-walks/walklet.csv};
+    \end{axis}
+  \end{tikzpicture}
+  }%
+  \caption{Evaluation of the Walking Strategies for Different Data Sets
+    According to the Maximum Number of Walks per Entity.}
+  \label{fig:benchmarks:walkers:walks}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:walkers:walks}, the model's accuracy with
+\texttt{SplitWalker} tends to stay around \SI{77}{\percent} after a maximum
+number of walks of 250. In addition, \texttt{AnonymousWalker},
+\texttt{NGramWalker}, and \texttt{RandomWalker} follow the same curve
+trajectory. Specifically, they have a peak of accuracy at a maximum number of
+walks per entity of 250. In contrast, the other walking strategies have a
+decrease of model's accuracy at this stage.
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Walker} & \textbf{Average Rank} \\
+    \midrule
+    \texttt{HALKWalker(freq\_threshold=0.01)} & 1 \\
+    \texttt{SplitWalker} & 2 \\
+    \texttt{RandomWalker} & 3 \\
+    \texttt{NGramWalker(grams=3)} & 4 \\
+    \texttt{WalkletWalker} & 5 \\
+    \texttt{AnonymousWalker} & 6 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Evaluation of the Average Rank of the Walking Strategies.}
+  \label{tab:benchmark:walkers:average:rank}
+\end{table}
+
+In Figure \ref{tab:benchmark:walkers:average:rank},
+\texttt{HALKWalker(freq\_threshold=0.01)} is the winning walking strategy in
+these benchmarks for \texttt{MUTAG}, followed by \texttt{SplitWalker}, and
+\texttt{RandomWalker}.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../master-thesis"
+%%% End:

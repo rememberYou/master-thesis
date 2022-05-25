@@ -1,0 +1,237 @@
+
+\subsection{Embedding Techniques}
+\label{subsec:embedding:techniques}
+
+FastText, BERT and Word2Vec are trained on the basis of ten epochs. In addition,
+FastText and Word2Vec use twenty negative words with a vector size of 500. For
+its splitting function, FastText uses a primary splitting function where the
+\texttt{\#} symbol splits each entity Finally, each embedding technique uses a
+\texttt{RandomWalker} and an \texttt{UniformSampler}.
+
+About the training of BERT, the latter is only trains on
+\texttt{MUTAG}. However, in case of multiple KGs, it is important to re-train it
+for each different KGs. Similarly, if BERT is trained with too few walks, it
+will be necessary to retrain it with a larger number of walks. In this case,
+online learning is important to avoid to retrain the whole model which can be
+time-consuming. Unline BERT that can take hours, days for training the model,
+Word2Vec and FastText take a few minutes to tens of minutes to train, which is
+significant difference.
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{rl}
+    \toprule
+    \textbf{Hyperparameter} & \textbf{Value} \\
+    \midrule
+    \textbf{Epochs} & 10 \\
+    \textbf{Warmup Steps} & 500 \\
+    \textbf{Weight Decay} & 0.01 \\
+    \textbf{Learning Rate} & 2e-5 \\
+    \textbf{Batch Size} & 16 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Basic Hyperparameters Used for Training the BERT Model.}
+  \label{tab:bert:hyperparameters}
+\end{table}
+
+In Table \ref{tab:bert:hyperparameters}, The values of these basic
+hyperparameters were chosen after several tests using a Grid Search with Cross
+Validation and depending on the training time. More precisely, a training of the
+BERT model with these hyperparameters with MUTAG and the same hardware
+characteristics as those of the IDLab servers, is done between 25 minutes and
+few hours.
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{cccS[table-format=2.2]@{${}\pm{}$}S[table-format=1.1]c}
+      \toprule
+      \textbf{Embedding Technique} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{2} & \multirow{3}{*}{250} & 79.71 & 2.35 & 1 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 76.76 & 1.71 & 2 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 70.59 & 5.88 & 3 \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{4} & \multirow{3}{*}{250} & 77.06 & 1.50 & 1 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 75.00 & 1.61 & 2 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 74.26 & 2.21 & 3 \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{6} & \multirow{3}{*}{250} & 82.35 & 1.86 & 1 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 76.32 & 3.24 & 2 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 74.71 & 2.35 & 3 \\
+      \bottomrule
+    \end{tabular}
+  }%
+  \caption{Evaluation of the Embedding Techniques for \texttt{MUTAG} According
+    to the Maximum Depth per Walk.}
+  \label{benchmarks:embedders:mutag:depth}
+\end{table}
+
+In Table \ref{benchmarks:embedders:mutag:depth}, regardless of the maximum depth
+per walk chosen for the same number of walks per entity, FastText indicates a
+model's accuracy above Word2Vec. Specifically, FastText allows an average
+increase of the model's accuracy of 4.22 times the one given by Word2Vec. In
+addition, FastText provides an excellent model's accuracy with \texttt{MUTAG}
+for a maximum depth per walk of 6. For BERT, the latter shows better results for
+larger maximum depth per walk.
+
+\begin{figure}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}
+    \begin{axis}[
+      scale only axis,
+      grid=major,
+      grid style={dashed,gray!30},
+      height=6cm,
+      width=9cm,
+      legend cell align={left},
+      legend entries={
+        \footnotesize{\texttt{BERT(learning\_rate=2e-5,batch\_size=16)}},
+        \footnotesize{\texttt{Word2Vec(negative=20,vector\_size=500)}},
+        \footnotesize{\texttt{FastText(negative=20,vector\_size=500)}}
+      },
+      legend style={
+        legend pos=outer north east,
+        font=\small
+      },
+      ylabel={Accuracy},
+      xlabel={Maximum Depth per Walk},
+      xtick={2,4,6},
+      ytick={75,77,79.70,82.30},
+      ]
+
+      \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/embedders/max-depth/bert.csv};
+      \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/embedders/max-depth/word2vec.csv};
+      \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+      table[x=max_depth,y=accuracy,col sep=comma] {data/embedders/max-depth/fasttext.csv};
+    \end{axis}
+  \end{tikzpicture}
+  }%
+  \caption{Evaluation of the Embedding Techniques for \texttt{MUTAG} According
+    to the Maximum Depth per Walk.}
+  \label{fig:benchmarks:embedders:depth}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:embedders:depth}, the curves of Word2Vec and
+FastText have an almost identical trajectory, except for a maximum depth per
+walk of 6. In this case, the accuracy model of FastText increases, while the
+accuracy model of Word2Vec decreases. Finally, BERT's accuracy is proportional
+to the maximum depth per walk. As well as the time needed to train the model.
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{cccS[table-format=2.2]@{${}\pm{}$}S[table-format=1.2]c}
+      \toprule
+      \textbf{Embedding Technique} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{4} & \multirow{3}{*}{100} & 77.94 & 1.61 & 1 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 71.47 & 2.20 & 2 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 69.43 & 1.73 & 3 \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{4} & \multirow{3}{*}{250} & 77.35 & 3.90 & 1 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 74.71 & 2.53 & 2 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 73.54 & 2.28 & 3 \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{4} & \multirow{3}{*}{500} & 76.18 & 1.71 & 1 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 75.24 & 2.37 & 2 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 73.53 & 1.86 & 3 \\
+      \midrule
+      \texttt{FastText(negative=20,vector\_size=500)} & \multirow{3}{*}{4} & \multirow{3}{*}{1000} & 77.35 & 2.73 & 1 \\
+      \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & & & 76.58 & 1.17 & 2 \\
+      \texttt{Word2Vec(negative=20,vector\_size=500)} & & & 74.41 & 3.03 & 3 \\
+      \bottomrule
+    \end{tabular}
+  }%
+  \caption{Evaluation of the Embedding Techniques for \texttt{MUTAG} According
+    to the Maximum Number of Walks per Entity}
+  \label{benchmarks:embedders:mutag:walks}
+
+\end{table}
+
+In Table \ref{benchmarks:embedders:mutag:walks}, regardless of the number of
+walks chosen for the same maximum depth per walk, FastText indicates a model's
+accuracy above Word2Vec. Specifically, FastText allows an average increase of
+the model's accuracy of 3.675 times the one given by Word2Vec. For BERT, the
+latter shows better results for larger maximum depth per walk, but performs less
+well for smaller maximum depth per walk. For BERT, the latter indicates an
+interesting model's accuracy for 500 and 1000 walks. However, the results are
+not as exceptional for a lower maximum of walks per entity.
+
+\begin{figure}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}
+      \begin{axis}[
+        scale only axis,
+        grid=major,
+        grid style={dashed,gray!30},
+        height=6cm,
+        width=9cm,
+        legend cell align={left},
+        legend entries={
+          \footnotesize{\texttt{BERT(learning\_rate=2e-5,batch\_size=16)}},
+          \footnotesize{\texttt{Word2Vec(negative=20,vector\_size=500)}},
+          \footnotesize{\texttt{FastText(negative=20,vector\_size=500)}}
+        },
+        legend style={
+          legend pos=outer north east,
+          font=\small
+        },
+        ylabel={Accuracy},
+        xlabel={Maximum Number of Walks per Entity},
+        xtick={100,250,500,1000},
+        ytick={71.50,73.50,74.50,76.20,78}
+        ]
+
+        \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/embedders/max-walks/bert.csv};
+        \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/embedders/max-walks/word2vec.csv};
+        \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/embedders/max-walks/fasttext.csv};
+      \end{axis}
+    \end{tikzpicture}
+  }%
+  \caption{Evaluation of the Embedding Techniques for \texttt{MUTAG} According
+    to the Maximum Number of Walks per Entity.}
+  \label{fig:benchmarks:embedders:walks}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:embedders:walks}, the curves of Word2Vec and
+FastText still have an almost identical trajectory, except for a maximum number
+of walks per entity of 250. In this case, the accuracy model of Word2Vec
+increases, while the accuracy model of FastText decreases. Finally, BERT's
+accuracy is also proportional to the maximum number of walks per entity. As well
+as the time needed to train the model.
+
+\newpage
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Embedding Technique} & \textbf{Average Rank} \\
+    \midrule
+    \texttt{FastText(negative=20,vector\_size=500)} & 1 \\
+    \texttt{Word2Vec(negative=20,vector\_size=500)} & 2 \\
+    \texttt{BERT(learning\_rate=2e-5,batch\_size=16)} & 3 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Evaluation of the Average Rank of the Embedding Techniques for \texttt{MUTAG}.}
+  \label{tab:benchmark:embedders:average:rank}
+\end{table}
+
+In Figure \ref{tab:benchmark:embedders:average:rank}, Word2Vec is the winning
+embedding techniques in these benchmarks for \texttt{MUTAG}, followed by
+FastText, and BERT.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../master-thesis"
+%%% End:

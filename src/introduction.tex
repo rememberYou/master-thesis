@@ -1,0 +1,122 @@
+
+\chapter{Introduction}
+\label{chap:introduction}
+
+In an increasingly digital world, data generation applies different semantic and
+syntactic origins~\citep{DBLP:journals/jodsn/CeravoloAACCDMK18}. However, this
+data diversity must remain interpretable by the computer. In the absence of
+semantics, the evaluation of the validity of the data is more
+constraining. Without it, the same data point might not represent the same
+thing. For example, the value of a sensor may be correct in one context but an
+anomaly in another. Therefore, semantics makes it possible to make the context
+of these data precise and understand their relationships.
+
+The usage of the Resource Description Framework (RDF) standard of the World Wide
+Web Consortium (W3C) enables the semantic encoding of data. Such a standard
+allows the management of this diversity of data through the Semantic Web and
+Linked Open Data by interconnecting the different data sources. Disregarding the
+\emph{knowledge base}, which contains semantic information, one way to make this
+interconnection is to use graphs. A \emph{graph} is an ordered pair ($V, E$),
+where $V$ is a finite and non-empty set of elements called \emph{vertices} (or
+\emph{nodes}), and $E$ is a set of unordered pairs of distinct nodes of $V$,
+called \emph{edges}.
+
+Based on this alternative representation of RDF data, the concept of Knowledge
+Graph (KG) was published~\citep{singhal_2012}. Mathematically, a KG is a
+\emph{directed heterogeneous multigraph}. This graph can store multiple directed
+labeled edges between two nodes whose edges and nodes can be of different
+types. Additionally, a KG can unite various sources and enhance conventional
+data formats such as Comma Separated Values (CSV) by explicitly encoding the
+relations between various nodes. Due to the richness of relations that these
+types of graphs bring, several Machine Learning (ML) techniques can benefit from
+them. From then on, there is a restricted usage of KGs due to their symbolic
+constructs as most ML techniques require converting these KGs into numerical
+input feature vectors.
+
+During this decade, different techniques
+emerged~\citep{inproceedings:ristoski:strategies} to create these numerical
+feature vectors, called \emph{embeddings}. One of them is to use Resource
+Description Framework To Vector (RDF2Vec), an unsupervised and task-agnostic
+algorithm to numerically represent nodes of a
+KG~\citep{article:ristoski:rdf2vec} in an \emph{embedding matrix} used for
+downstream ML tasks. For this purpose, RDF2Vec uses a walking strategy to
+extract \emph{walks} of a KG, where a walk is an $n$-tuple of nodes starting
+with a root node. In addition to this strategy, it is possible to use a sampling
+strategy to better deal with larger KGs~\citep{inproceedings:cochez} by
+privileging some hops over others through edge weights. Once extracted, these
+walks are injected into an \emph{embedding technique} to learn the embeddings of
+the provided root nodes of a KG and generate the corresponding embedding matrix.
+
+Following the significant advances in Natural Language Processing (NLP), the
+community developed multiple embedding techniques. Among them, the release of
+Word2Vec in 2013 initially learns the vector representation of a
+word~\citep{inproceedings:mikolov}. However, KGs used this NLP technique where
+walks can be an analogy of sentences and nodes as words. Word2Vec is the default
+embedding technique of RDF2Vec and has shown promising
+results~\citep{DBLP:journals/semweb/RistoskiRNLP19} in its use with
+KGs. However, other significant advances in the NLP field have taken place.
+
+One of these advances was the creation of FastText, a Word2Vec extension to
+improve the obtained embeddings. Published in 2016, FastText has improved these
+embeddings in many use-cases at the expense of Random Access Memory (RAM)
+consumption and training time, but more recent techniques have emerged. Since
+2018, Bidirectional Encoder Representations from Transformers (BERT) is the
+state-of-the-art NLP technique~\citep{inproceedings:devlin} whose objective is
+to generate an unsupervised language representation model. This new technique
+outperformed Word2Vec in everyday NLP
+tasks~\citep{DBLP:conf/embc/SahaLG20,article:beseiso,DBLP:conf/acl/HendrycksLWDKS20}. Due
+to its efficiency, the community published many variants of BERT, each bringing
+its specificity. However, BERT's benefits with KGs are still debatable. Few
+research papers have used this technique in KGs to compare it with other
+embedding techniques.
+
+As a result of this finding, the main purpose of this Master's thesis is to
+provide a research work to focus on evaluating BERT with KGs based on Word2Vec
+and FastText. Such an evaluation would help determine its impact on the created
+embeddings and improve the generation of a 2D feature matrix from a KG.
+
+To achieve this evaluation, an implementation of BERT and FastText will have to
+be made to the \texttt{pyRDF2Vec} library, a central Python implementation of
+the Java-based version of the RDF2Vec algorithm~\citep{pyrdf2vec}. In addition,
+since BERT works differently from Word2Vec, and FastText, it will be necessary
+to adapt the extraction and formatting of the walks of a KG to improve its
+training. Finally, the choice of hyperparameters will be a determining criterion
+on the accuracy of the BERT model, so it may be wise to find a compromise
+between training time and the model's accuracy.
+
+Besides this primary objective, this Master's thesis proposes one more walking
+strategy and sampling strategy to those already provided by
+\texttt{pyRDF2Vec}~\citep{inproceedings:cochez}. Specifically, a walking
+strategy called \texttt{SplitWalker} uses a splitting function to pre-format the
+extracted walks before being injected into an embedding technique. In addition
+to this strategy, the \texttt{WideSampler} sampling strategy focuses on features
+shared between several entities by maximizing common relationships. Such
+additions could improve a model's accuracy and the extraction time for specific
+use cases according to a user's needs.
+
+The result of this Master's thesis work is structured as follows. Chapter
+\ref{chap:related:work} introduces more context on the work related to BERT and
+RDF2Vec with KGs. Chapter \ref{chap:objectives} focuses on providing the
+specifications for this Master's thesis and stating the problems
+encountered. Chapter \ref{chap:background} provides background information on
+the fundamental concepts of graphs, ML, and NLP. This chapter also introduces
+advanced concepts such as the Attention mechanism and the Transformer
+architecture, both used by BERT. In addition, Chapter
+\ref{chap:embedding:techniques} focuses on covering in detail the functioning of
+each embedding technique, dedicating a section to the adaptation of BERT with a
+graph. From then on, Chapter \ref{chap:rdf2vec} refers to RDF2Vec, including the
+walking strategies and the sampling strategies proposed by this Master's
+thesis. Chapter \ref{chap:work:performed} describes the work done behind this
+Master's thesis, explaining the different implementations that were put in
+place. Chapter \ref{chap:benchmarks} focuses on providing the setup and results
+obtained from the different benchmarks related to the embedding techniques,
+walking and sampling strategies. Following these results, Chapter
+\ref{chap:discussion} discusses the correlation of the results with those of
+other research papers and provides some leads for future research with
+BERT. Finally, Chapter \ref{chap:conclusion} is dedicated to the conclusion of
+this Master's thesis, summarizing the issues and solutions proposed.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../report"
+%%% End:

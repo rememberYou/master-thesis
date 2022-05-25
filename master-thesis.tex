@@ -1,0 +1,153 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,allcolors=blueLink]{hyperref}
+\usepackage[margin=2cm]{geometry}
+\usepackage{abstract}
+\usepackage{polyglossia}
+
+\usepackage[binary-units=true,detect-all,group-separator={,},group-minimum-digits=4]{siunitx}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[round]{natbib}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{adjustbox}
+\usepackage{multicol}
+\usepackage{pgf}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{threeparttable}
+\usepackage{listings}
+
+\bibliographystyle{plainnat}
+
+\setmainlanguage{english}
+\setotherlanguage{french}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\usetikzlibrary{arrows,automata,calc,decorations.pathreplacing,positioning,shapes,snakes}
+
+\tikzset{%
+  arrow/.style={thick,-stealth},
+  edge/.style={midway,sloped,above},
+  entity/.style={circle,draw},
+  label/.style={yshift=0.2cm},
+}
+
+\definecolor{eclipseComment}{RGB}{63,127,95}
+\definecolor{eclipseKeywords}{RGB}{127,0,85}
+\definecolor{eclipseStrings}{RGB}{42,0.0,255}
+
+\definecolor{blueLink}{HTML}{180CAD}
+\definecolor{dark}{HTML}{7B7D7B}
+\definecolor{grey}{HTML}{C6C7C6}
+\definecolor{green}{HTML}{789437}
+\definecolor{blue}{HTML}{377894}
+\definecolor{red}{HTML}{943778}
+\definecolor{mygreen}{HTML}{bdd7d6}
+\definecolor{myred}{HTML}{dec3d6}
+
+\definecolor{myyellow}{HTML}{d6dec3}
+\definecolor{mygreen}{HTML}{c3ded9}
+\definecolor{myblue}{HTML}{c3d6de}
+\definecolor{darkBlue}{HTML}{5f8ba8}
+\definecolor{mypurple}{HTML}{c3c9de}
+\definecolor{darkPurple}{HTML}{485684}
+\definecolor{myyellow}{HTML}{DED8C3}
+\definecolor{mybrown}{HTML}{DEC3C9}
+\definecolor{darkRed}{HTML}{844871}
+
+\definecolor{dark}{HTML}{7B7D7B}
+\definecolor{eclipseComment}{RGB}{63,127,95}
+\definecolor{eclipseKeywords}{RGB}{127,0,85}
+\definecolor{eclipseStrings}{RGB}{42,0.0,255}
+\definecolor{grey}{HTML}{C6C7C6}
+
+\definecolor{brown}{HTML}{945337}
+\definecolor{medimumBlue}{HTML}{60A8A1}
+\definecolor{yellow}{HTML}{938136}
+
+\definecolor{darkGreen}{HTML}{499336}
+\definecolor{lightGreen}{HTML}{779336}
+\definecolor{mediumGreen}{HTML}{369352}
+
+\lstset{
+  language=Python,
+  backgroundcolor=\color{grey!10},
+  basicstyle=\fontsize{10}{10}\selectfont\ttfamily,
+  breaklines=true,
+  commentstyle=\color{eclipseComment},
+  frame=lines,
+  keywordstyle=\color{eclipseKeywords}\bfseries,
+  morekeywords={get\_balance,get\_estaking,get\_gtime,get\_lstaking,get\_mcost,get\_pcost,IP1,fmincon,inf,linprog,ones},
+  stringstyle=\color{eclipseStrings},
+  numbers=left,
+  numberstyle=\scriptsize,
+  showstringspaces=false,
+}
+% Imposes a default size for all schemas using pgfplot.
+\pgfplotsset{width=8cm,compat=newest}
+\usepgfplotslibrary{units}
+
+\def\keywords#1{\textit{Keywords: }{#1}}
+
+% Defines a horizontal line.
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+% Automatically increments the number of equations.
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+% Constants in mathematics should be in italic.
+\newcommand{\me}{\mathrm{e}}
+% Defines source for figures.
+\newcommand{\source}[1] {
+  \vspace{7pt}\hspace*{15pt}\hbox{\thinspace{\small{Source: #1}}}
+}
+
+% Defines new column types to have table cells of the same size.
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+% Aligns content vertically.
+\newenvironment{vc}{\topskip0pt\vspace*{\fill}\noindent\ignorespaces}{\strut\vfill}
+
+% Uses dashes for the itemize environment.
+\renewcommand\labelitemi{---}
+
+\begin{document}
+\include{src/flyleaf}
+\pagenumbering{arabic}
+\newpage
+\include{src/abstract}
+\newpage
+\include{src/acknowledgments}
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+\include{src/introduction}
+\include{src/related-work}
+\include{src/objectives}
+\include{src/background}
+\include{src/embedders}
+\include{src/rdf2vec}
+\include{src/work-performed}
+\include{src/benchmarks}
+\include{src/discussion}
+\include{src/conclusion}
+\include{src/references}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

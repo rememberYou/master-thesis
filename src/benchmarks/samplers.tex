@@ -1,0 +1,470 @@
+
+\subsection{Sampling Strategies}
+\label{subsec:samplers}
+
+To determine the accuracy impact of \texttt{WideSampler}, the latter is compared
+to other sampling strategies in a first time using \texttt{MUTAG} where only the
+number of walks and depth are variable. The number of standard entities for
+\texttt{MUTAG} being fixed at 340 trained entities, 68 of these serve as testing
+entities. As RDF2Vec is unsupervised, including the testing entities in the
+training set is not an issue.
+
+\newpage
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcc S[table-format=2.2]@{${}\pm{}$}S[table-format=1.2]c}
+      \toprule
+      \textbf{Sampler} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{ObjPredFreqSampler} & \multirow{13}{*}{2} & \multirow{13}{*}{100} & \textbf{78.82} & 3.17 & 1 \\
+      \texttt{ObjFreqSampler} & & & 77.94 & 3.35 & 2 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 77.65 & 2.35 & 3 \\
+      \texttt{WideSampler} & & & 76.76 & 1.95 & 4 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 76.76 & 2.16 & 5 \\
+      \texttt{PredFreqSampler} & & & 76.76 & 4.87 & 6 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 76.18 & 2.16 & 7 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 76.47 & 2.08 & 8 \\
+      \texttt{UniformSampler} & & & 76.18 & 4.50 & 9 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 75.88 & 4.01 & 10 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 74.71 & 1.71 & 11 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 74.41 & 1.50 & 12 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 73.53 & 2.79 & 13 \\
+      \midrule
+      \texttt{WideSampler} & \multirow{13}{*}{2} & \multirow{13}{*}{250} & \textbf{77.35} & 1.99 & 1 \\
+      \texttt{PredFreqSampler} & & & 76.18 & 3.14 & 2 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 75.88 & 1.50 & 3 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 75.88 & 3.03 & 4 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 75.88 & 5.06 & 5 \\
+      \texttt{ObjFreqSampler(inverse=true)} & & & 75.59 & 1.99 & 6 \\
+      \texttt{ObjFreqSampler} & & & 75.59 & 4.71 & 7 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 75.29 & 1.10 & 8 \\
+      \texttt{UniformSampler} & & & 75.29 & 1.44 & 9 \\
+      \texttt{ObjPredFreqSampler} & & & 75.29 & 2.35 & 10 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 75.00 & 2.46 & 11 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 74.12 & 1.99 & 12 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 73.82 & 2.53 & 13 \\
+      \midrule
+      \texttt{ObjFreqSampler} & \multirow{13}{*}{2} & \multirow{13}{*}{500} & \textbf{75.29} & 2.16 & 1 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 75.00 & 0.00 & 2 \\
+      \texttt{WideSampler} & & & 74.71 & 1.10 & 3 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 74.71 & 3.14 & 4 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 74.12 & 2.56 & 5 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 73.82 & 2.53 & 6 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 73.82 & 2.16 & 7 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 73.82 & 2.53 & 8 \\
+      \texttt{ObjPredFreqSampler} & & & 73.53 & 1.32 & 9 \\
+      \texttt{UniformSampler} & & & 73.53 & 2.63 & 10 \\
+      \texttt{PredFreqSampler} & & & 72.65 & 2.73 & 11 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 72.65 & 2.73 & 12 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 72.35 & 1.95 & 13 \\
+      \bottomrule
+    \end{tabular}
+  }%
+  \caption{Accuracy of Sampling Strategies for \texttt{MUTAG} (Part I).}
+  \label{tab:benchmarks:samplers:part:1}
+\end{table}
+
+In Table \ref{tab:benchmarks:samplers:part:1}, for a maximum depth of walk of 2 with
+a maximum number of walks of 250, \texttt{WideSampler} indicates the best
+model's accuracy. In addition, the latter gives good precision models for a
+maximum number of walks of 100 and 500.
+
+ \begin{figure}[!ht]
+  \centering
+  \resizebox{0.9\textwidth}{!}{%
+    \begin{tikzpicture}
+      \begin{axis}[
+        scale only axis,
+        grid=major,
+        grid style={dashed,gray!30},
+        height=6cm,
+        width=9cm,
+        legend cell align={left},
+        legend entries={
+          \texttt{ObjFreqSampler(inverse=True,split=True)},
+          \texttt{ObjFreqSampler(inverse=True)},
+          \texttt{ObjFreqSampler},
+          \texttt{ObjPredFreqSampler(inverse=True)},
+          \texttt{ObjPredFreqSampler},
+          \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)},
+          \texttt{PageRankSampler(inverse=True,alpha=0.85)},
+          \texttt{PageRankSampler(split=True,alpha=0.85)},
+          \texttt{PageRankSampler(alpha=0.85)},
+          \texttt{PredFreqSampler(inverse=True)},
+          \texttt{PredFreqSampler},
+          \texttt{UniformSampler},
+          \texttt{WideSampler},
+        },
+        legend style={
+          legend pos=outer north east,
+          font=\small
+        },
+        ylabel={Accuracy},
+        xlabel={Maximum Number of Walks per Entity},
+        xtick={100,250,500},
+        ytick={73,74,76,78},
+        ]
+
+        \addplot[medimumBlue,mark=diamond,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/objfreq-inv-split.csv};
+        \addplot[darkBlue,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/objfreq-inv.csv};
+        \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/objfreq.csv};
+
+        \addplot[darkRed,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/objpredfreq-inv.csv};
+        \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/objpredfreq.csv};
+
+        \addplot[mediumGreen,mark=diamond,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/pagerank-inv-split.csv};
+        \addplot[darkGreen,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/pagerank-inv.csv};
+        \addplot[yellow,mark=triangle,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma]{data/samplers/max-depth/2/pagerank-split.csv};
+        \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/pagerank.csv};
+
+        \addplot[darkPurple,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/predfreq-inv.csv};
+        \addplot[purple,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/predfreq.csv};
+
+        \addplot[brown,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/uniform.csv};
+        \addplot[black,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/2/widesampler.csv};
+      \end{axis}
+    \end{tikzpicture}
+  }%
+  \caption{Sampling Strategies for \texttt{MUTAG} According
+    to a Maximum Depth per Walk of 2.}
+  \label{fig:benchmarks:samplers:part:1}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:samplers:part:1}, the model's accuracy for the
+different walking strategies is inversely proportional to the maximum number of
+walks per entity. Moreover, \texttt{WideSampler} and \texttt{PredFreqSampler}
+have two almost similar curves by their trajectory.
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{0.94\textwidth}{!}{%
+    \begin{tabular}{lccS[table-format=2.2]@{${}\pm{}$}S[table-format=1.2]c}
+      \toprule
+      \textbf{Sampler} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{WideSampler} & \multirow{13}{*}{4} & \multirow{13}{*}{100} & \textbf{78.82} & 3.03 & 1 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 78.24 & 2.53 & 2 \\
+      \texttt{ObjPredFreqSampler} & & & 75.29 & 3.99 & 3 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 75.00 & 2.63 & 4 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 74.12 & 3.79 & 5 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 73.82 & 2.16 & 6 \\
+      \texttt{PredFreqSampler} & & & 73.82 & 2.53 & 7 \\
+      \texttt{UniformSampler} & & & 73.24 & 1.95 & 8 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 72.94 & 1.50 & 9 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 72.65 & 1.18 & 10 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 72.65 & 3.79 & 11 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 72.65 & 4.22 & 12 \\
+      \texttt{ObjFreqSampler} & & & 69.12 & 5.73 & 13 \\
+      \midrule
+      \texttt{ObjPredFreqSampler(inverse=True)} & \multirow{13}{*}{4} & \multirow{13}{*}{250} & \textbf{79.41} & 2.63 & 1 \\
+      \texttt{ObjFreqSampler} & & & 78.53 & 2.56 & 2 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 77.06 & 2.56 & 3 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 76.18 & 3.14 & 4 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 75.59 & 2.88 & 5 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 75.59 & 1.76 & 6 \\
+      \texttt{WideSampler} & & & 75.00 & 2.94 & 7 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 74.71 & 2.85 & 8 \\
+      \texttt{PredFreqSampler} & & & 74.41 & 2.73 & 9 \\
+      \texttt{UniformSampler} & & & 74.41 & 2.56 & 10 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 73.53 & 2.28 & 11 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 71.18 & 2.39 & 12 \\
+      \texttt{ObjPredFreqSampler} & & & 68.82 & 3.53 & 13 \\
+      \midrule
+      \texttt{ObjPredFreqSampler(inverse=True)} & \multirow{13}{*}{4} & \multirow{13}{*}{500} & \textbf{77.94} & 0.93 & 1 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 77.65 & 1.95 & 2 \\
+      \texttt{UniformSampler} & & & 77.35 & 1.18 & 3 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 77.35 & 2.73 & 4 \\
+      \texttt{ObjPredFreqSampler} & & & 77.06 & 2.39 & 5 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 76.18 & 1.10 & 6 \\
+      \texttt{PredFreqSampler} & & & 75.59 & 4.32 & 7 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 75.59 & 3.03 & 8 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 75.29 & 2.16 & 9 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 75.29 & 3.14 & 10 \\
+      \texttt{WideSampler} & & & 74.41 & 2.20 & 11 \\
+      \texttt{ObjFreqSampler} & & & 74.41 & 2.20 & 11 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 74.12 & 4.12 & 12 \\
+      \bottomrule
+    \end{tabular}
+    }%
+    \caption{Accuracy of Sampling Strategies for \texttt{MUTAG} (Part II).}
+  \label{tab:benchmarks:samplers:part:2}
+\end{table}
+
+In Table \ref{tab:benchmarks:samplers:part:2}, for a maximum depth per walk of 4
+with a maximum number of walks of 100, \texttt{WideSampler} indicates the best
+model's accuracy. However, the model's accuracy of \texttt{WideSampler} is
+inversely proportional to the maximum number of walks per entity.
+
+\newpage
+
+ \begin{figure}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}
+      \begin{axis}[
+        scale only axis,
+        grid=major,
+        grid style={dashed,gray!30},
+        height=6cm,
+        width=9cm,
+        legend cell align={left},
+        legend entries={
+          \texttt{ObjFreqSampler(inverse=True,split=True)},
+          \texttt{ObjFreqSampler(inverse=True)},
+          \texttt{ObjFreqSampler},
+          \texttt{ObjPredFreqSampler(inverse=True)},
+          \texttt{ObjPredFreqSampler},
+          \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)},
+          \texttt{PageRankSampler(inverse=True,alpha=0.85)},
+          \texttt{PageRankSampler(split=True,alpha=0.85)},
+          \texttt{PageRankSampler(alpha=0.85)},
+          \texttt{PredFreqSampler(inverse=True)},
+          \texttt{PredFreqSampler},
+          \texttt{UniformSampler},
+          \texttt{WideSampler},
+        },
+        legend style={
+          legend pos=outer north east,
+          font=\small
+        },
+        ylabel={Accuracy},
+        xlabel={Maximum Number of Walks per Entity},
+        xtick={100,250,500},
+        ytick={70,72,74,76,78}
+        ]
+
+        \addplot[medimumBlue,mark=diamond,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/objfreq-inv-split.csv};
+        \addplot[darkBlue,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/objfreq-inv.csv};
+        \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/objfreq.csv};
+
+        \addplot[darkRed,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/objpredfreq-inv.csv};
+        \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/objpredfreq.csv};
+
+        \addplot[mediumGreen,mark=diamond,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/pagerank-inv-split.csv};
+        \addplot[darkGreen,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/pagerank-inv.csv};
+        \addplot[yellow,mark=triangle,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma]{data/samplers/max-depth/4/pagerank-split.csv};
+        \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/pagerank.csv};
+
+        \addplot[darkPurple,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/predfreq-inv.csv};
+        \addplot[purple,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/predfreq.csv};
+
+        \addplot[brown,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/uniform.csv};
+        \addplot[black,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/4/widesampler.csv};
+      \end{axis}
+    \end{tikzpicture}
+  }%
+  \caption{Sampling Strategies for \texttt{MUTAG} According
+    to a Maximum Depth per Walk of 4.}
+  \label{fig:benchmarks:samplers:part:2}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:samplers:part:2}, the model's accuracy for most of
+the walking strategies is proportional to the maximum number of walks per
+entity.
+
+\begin{table}[!ht]
+  \centering
+  \resizebox{0.85\textwidth}{!}{%
+    \begin{tabular}{lcc S[table-format=2.2]@{${}\pm{}$}S[table-format=1.2]c}
+      \toprule
+      \textbf{Sampler} & \textbf{Max. Depth} & \textbf{Max. Walks}
+      & \multicolumn{2}{c}{\textbf{Accuracy} (\SI{}{\percent})} & \textbf{Rank} \\
+      \midrule
+      \texttt{PredFreqSampler} & \multirow{13}{*}{6} & \multirow{13}{*}{100} & \textbf{79.41} & 2.46 & 1 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 77.06 & 3.03 & 2 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 76.76 & 3.40 & 3 \\
+      \texttt{WideSampler} & & & 76.76 & 3.40 & 3 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 76.76 & 3.88 & 4 \\
+      \texttt{ObjFreqSampler} & & & 75.59 & 5.06 & 5 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 75.59 & 2.73 & 6 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 75.29 & 1.71 & 7 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 75.29 & 1.71 & 8 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 74.12 & 3.03 & 9 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 73.53 & 3.35 & 10 \\
+      \texttt{UniformSampler} & & & 73.24 & 3.77 & 11 \\
+      \texttt{ObjPredFreqSampler} & & & 70.88 & 6.47 & 12 \\
+      \midrule
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & \multirow{13}{*}{6} & \multirow{13}{*}{250} & \textbf{80.00} & 1.50 & 1 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 78.53 & 3.17 & 2 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 78.24 & 4.30 & 3 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 78.24 & 6.20 & 4 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 77.35 & 2.39 & 5 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 76.18 & 2.53 & 6 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 76.18 & 4.30 & 7 \\
+      \texttt{UniformSampler} & & & 75.59 & 1.76 & 8 \\
+      \texttt{PredFreqSampler} & & & 75.59 & 3.03 & 9 \\
+      \texttt{ObjFreqSampler} & & & 75.00 & 2.08 & 10 \\
+      \texttt{WideSampler} & & & 75.00 & 4.83 & 11 \\
+      \texttt{ObjPredFreqSampler} & & & 73.24 & 4.78 & 12 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 72.65 & 2.56 & 13 \\
+      \midrule
+      \texttt{PredFreqSampler} & \multirow{13}{*}{6} & \multirow{13}{*}{500} & \textbf{79.41} & 3.08 & 1 \\
+      \texttt{ObjFreqSampler(inverse=True)} & & & 78.82 & 1.50 & 2 \\
+      \texttt{WideSampler} & & & 78.53 & 1.18 & 3 \\
+      \texttt{ObjFreqSampler} & & & 78.24 & 1.95 & 4 \\
+      \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & & & 77.94 & 1.32 & 5 \\
+      \texttt{UniformSampler} & & & 77.94 & 1.86 & 6 \\
+      \texttt{PredFreqSampler(inverse=True)} & & & 77.35 & 1.50 & 7 \\
+      \texttt{PageRankSampler(alpha=0.85)} & & & 77.35 & 1.50 & 7 \\
+      \texttt{PageRankSampler(inverse=True,alpha=0.85)} & & & 77.35 & 1.99 & 8 \\
+      \texttt{ObjPredFreqSampler} & & & 77.06 & 1.99 & 9 \\
+      \texttt{PageRankSampler(split=True,alpha=0.85)} & & & 76.76 & 2.16 & 10 \\
+      \texttt{ObjFreqSampler(inverse=True,split=True)} & & & 75.88 & 1.76 & 11 \\
+      \texttt{ObjPredFreqSampler(inverse=True)} & & & 75.59 & 3.55 & 12 \\
+      \bottomrule
+    \end{tabular}
+    }%
+    \caption{Accuracy of Sampling Strategies for MUTAG (Part III).}
+    \label{tab:benchmark:samplers:walks:part:3}
+\end{table}
+
+In Table \ref{tab:benchmark:samplers:walks:part:3}, for a maximum depth of walk of 6 with
+a maximum number of walks of 500, \texttt{WideSampler} indicates a good
+model's accuracy. However, the latter indicates a poor model's accuracy for a
+maximum number of walks of 500.
+
+\newpage
+
+\begin{figure}[!ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}
+      \begin{axis}[
+        scale only axis,
+        grid=major,
+        grid style={dashed,gray!30},
+        height=6cm,
+        width=9cm,
+        legend cell align={left},
+        legend entries={
+          \texttt{ObjFreqSampler(inverse=True,split=True)},
+          \texttt{ObjFreqSampler(inverse=True)},
+          \texttt{ObjFreqSampler},
+          \texttt{ObjPredFreqSampler(inverse=True)},
+          \texttt{ObjPredFreqSampler},
+          \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)},
+          \texttt{PageRankSampler(inverse=True,alpha=0.85)},
+          \texttt{PageRankSampler(split=True,alpha=0.85)},
+          \texttt{PageRankSampler(alpha=0.85)},
+          \texttt{PredFreqSampler(inverse=True)},
+          \texttt{PredFreqSampler},
+          \texttt{UniformSampler},
+          \texttt{WideSampler},
+        },
+        legend style={
+          legend pos=outer north east,
+          font=\small
+        },
+        ylabel={Accuracy},
+        xlabel={Maximum Number of Walks per Entity},
+        xtick={100,250,500},
+        ytick={72,74,76,78,80}
+        ]
+
+        \addplot[medimumBlue,mark=diamond,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/objfreq-inv-split.csv};
+        \addplot[darkBlue,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/objfreq-inv.csv};
+        \addplot[blue,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/objfreq.csv};
+
+        \addplot[darkRed,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/objpredfreq-inv.csv};
+        \addplot[red,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/objpredfreq.csv};
+
+        \addplot[mediumGreen,mark=diamond,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/pagerank-inv-split.csv};
+        \addplot[darkGreen,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/pagerank-inv.csv};
+        \addplot[yellow,mark=triangle,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma]{data/samplers/max-depth/6/pagerank-split.csv};
+        \addplot[green,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/pagerank.csv};
+
+        \addplot[darkPurple,mark=square,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/predfreq-inv.csv};
+        \addplot[purple,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/predfreq.csv};
+
+        \addplot[brown,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/uniform.csv};
+        \addplot[black,mark=*,error bars/.cd, y dir=both, y explicit]
+        table[x=max_walk,y=accuracy,col sep=comma] {data/samplers/max-depth/6/widesampler.csv};
+      \end{axis}
+    \end{tikzpicture}
+  }%
+  \caption{Sampling Strategies for \texttt{MUTAG} According
+    to a Maximum Depth per Walk of 6.}
+  \label{fig:benchmarks:samplers:part:3}
+\end{figure}
+
+In Figure \ref{fig:benchmarks:samplers:part:3}, the curve of
+\texttt{WideSampler} shows the same trajectory as \texttt{PredFreqSampler} and
+\texttt{PageRankSampler(inverse=True,alpha=0.85)}. In addition,
+\texttt{ObjPreqFreqSampler} is proportional to the maximum number of walks per
+entity.
+
+\begin{table}[!ht]
+  \centering
+  \begin{tabular}{lc}
+    \toprule
+    \textbf{Sampler} & \textbf{Average Rank} \\
+    \midrule
+    \texttt{WideSampler} & 1 \\
+    \texttt{ObjPredFreqSampler(inverse=True)} & 2 \\
+    \texttt{PredFreqSampler} & 3 \\
+    \texttt{ObjFreqSampler} & 4 \\
+    \texttt{ObjFreqSampler(inverse=True)} & 5 \\
+    \texttt{PageRankSampler(inverse=True,alpha=0.85)} & 6 \\
+    \texttt{PageRankSampler(inverse=True,split=True,alpha=0.85)} & 7 \\
+    \texttt{ObjFreqSampler(inverse=True,split=True)} & 8 \\
+    \texttt{PageRankSampler(split=True,alpha=0.85)} & 9 \\
+    \texttt{PredFreqSampler(inverse=True)} & 10 \\
+    \texttt{ObjPredFreqSampler} & 11 \\
+    \texttt{UniformSampler} & 11 \\
+    \texttt{PageRankSampler(alpha=0.85)} & 12 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Average Rank of the Sampling Strategies.}
+  \label{benchmark:samplers:average:rank}
+\end{table}
+
+In Figure \ref{benchmark:samplers:average:rank}, \texttt{WideSampler} is the winning
+sampler strategy in these benchmarks for \texttt{MUTAG}, followed by
+\texttt{ObjPredFreqSampler(inverse=True)}, and \texttt{PredFreqSampler}.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../master-thesis"
+%%% End:

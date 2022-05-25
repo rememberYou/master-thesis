@@ -1,0 +1,304 @@
+
+\section{Attention}
+\label{sec:attention}
+
+The \emph{Attention} is a Deep Learning mechanism published in 2014 by
+\textsc{Bahdanau} et al. to solve the bottleneck issue of Recurrent Neural
+Networks (RNNs) sequential models widely used for neural machine
+translation~\citep{bahdanau}. To fully understand its mechanism, it is helpful
+to start by introducing the functioning of RNNs.
+
+\subsection{Recurrent Neural Networks}
+\label{subsec:rnns}
+
+Before using such a mechanism, RNNs caused accuracy losses for a model when
+processing long input sequences mainly due to the way RNN encoders generated the
+context vector. Added to that, RNNs are difficult to parallelize.
+
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[
+    hid/.style 2 args={rectangle split, rectangle split horizontal, draw=#2,
+      rectangle split parts=#1, fill=#2!20, outer sep=1mm},
+    label/.style={font=\small}]
+    \tikzset{>=stealth',every on chain/.append style={join},
+      every join/.style={->}}
+
+    \foreach \step in {1,2,3,4,5,6,7} {
+      \node[hid={3}{blue}] (w\step) at (2.5*\step, -1.5) {};
+      \node[hid={3}{red}] (o\step) at (2.5*\step, 1.5) {};
+      \node[label,rectangle, draw=grey, fill=grey!20,
+     minimum height=0.22cm,minimum width=1.4cm] (h\step) at (2.5*\step, 0) {\scriptsize{RNN}};
+      \draw[->] (w\step.north) -> (h\step.south);
+      \draw[->] (h\step.north) -> (o\step.south);
+    }
+
+    \foreach \step/\next in {1/2,2/3,3/4,4/5,5/6,6/7}
+    \draw[->] (h\step.east) -> (h\next.west) node[above,midway] {$h_\step$};
+
+    \node[label,below=of w1,yshift=30pt] {hello};
+    \node[label,below=of w2,yshift=28pt] {my};
+    \node[label,below=of w3,yshift=30pt] {dear};
+    \node[label,below=of w4,yshift=28pt] {\texttt{<EOS>}};
+    \node[label,below=of w5,yshift=30pt] {bonjour};
+    \node[label,below=of w6,yshift=28pt] {ma};
+    \node[label,below=of w7,yshift=30pt] {chère};
+
+    \node[label,above=of h1.north,yshift=13pt] {$o_1$};
+    \node[label,above=of h2.north,yshift=13pt] {$o_2$};
+    \node[label,above=of h3.north,yshift=13pt] {$o_3$};
+    \node[label,above=of h4.north,yshift=13pt] {bonjour};
+    \node[label,above=of h5.north,yshift=15pt] {ma};
+    \node[label,above=of h6.north,yshift=15pt] {chère};
+    \node[label,above=of h7.north,yshift=15pt] {\texttt{<EOS>}};
+
+    \draw[loosely dashed, thick] (8.75,3) -- (8.75,1);
+    \draw[loosely dashed, thick] (8.75,-0.5) -- (8.75,-2.5);
+
+    \node[label,above=of h2.north,yshift=35pt] {\textbf{ENCODER}};
+    \node[label,above=of h5.north,yshift=35pt,xshift=30pt] {\textbf{DECODER}};
+  \end{tikzpicture}
+  \caption{Sequence-to-Sequence Learning With RNNs.}
+  \label{fig:rnn}
+\end{figure}
+
+In Figure \ref{fig:rnn}, a Sequence to Sequence (Seq2Seq) model translates an
+English sentence into French using RNN encoders and decoders. Each time step has
+an RNN unit containing an activation function that takes a word embedding and a
+hidden state as input for both encoding and decoding. This hidden state serves
+as a memory to save the entire previous context. Specifically, the hidden state
+at the $t$ time step is computed based on the hidden state at the $t − 1$ time
+step and the current word embedding. Once one RNN encoder reaches the first
+End-Of-Sentence (\texttt{<EOS>}), the RNN decoder receives a context vector
+containing the last generated hidden state, namely $h_3$. Finally, each RNN
+decoder unit translates a word based on this context until to reach once more
+the \texttt{<EOS>} token.
+
+Although RNNs are effective for small sequences, this is not the case for more
+extensive sequences. This mechanism uses a fixed size context vector and
+generates the encoder's hidden states based on the previous hidden
+state. Consequently, the last words of an input sequence have a greater weight
+than the first ones. From this unbalanced weight, processing a long sequence by
+a model comes at the cost of forgetting the earlier parts of that sequence,
+resulting in a loss model's accuracy. RNN variants emerged to reduce this waste
+of information, such as Long Short-Term Memory (LSTM) and Gated Recurrent Units
+(GRU). These variants helped to improve the model's accuracy, but the Attention
+mechanism came up with an interesting idea.
+
+\subsection{Mechanism}
+\label{subsec:attention:mechanism}
+
+The basic idea of the Attention mechanism is not only to pay attention to each
+input word in the context vector but also to give a relative importance to each
+of them~\citep{bahdanau}. In other words, the Attention mechanism focuses on
+matching input and output elements. After its publication, this mechanism became
+one of the design choices in many NLP and Computer Vision tasks. Computer Vision
+is a field of Artificial Intelligence where the computer learns digital images
+or video content. This mechanism has received other
+variants~\citep{DBLP:conf/emnlp/LuongPM15}, which increased the model's accuracy
+in most of the benchmarks that have been performed. Finally, due to the
+popularity of the Attention mechanism, the use of RNNs has been questioned many
+times. However, RNNs are still present in everyday life through various voice
+assistance applications such as Apple's Siri, Amazon Alexa, and Google Home.
+
+With the Attention mechanism, the context vector includes each encoder's hidden
+state. In addition, each decoder's hidden state processes some additional
+calculation to achieve a better model's accuracy compared to the use of RNNs
+without Attention~\citep{alammar-seq2seq}. This mechanism mainly solved the
+previous issues related to the lack of parallelization and forgetting previous
+word contexts for long sequences.
+
+
+\newpage
+
+Visually, the mechanism works as follows:
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}[
+    hid/.style 2 args={rectangle split, rectangle split horizontal, draw=#2,
+      rectangle split parts=#1, fill=#2!20, outer sep=1mm},
+    label/.style={font=\small}]
+    \tikzset{>=stealth',every on chain/.append style={join},
+      every join/.style={->}}
+
+    \foreach \step in {1,2,3} {
+      \node[label,rectangle, draw=grey, fill=grey!20,
+      minimum height=0.22cm,minimum width=1.35cm] (w\step) at (2.5*\step, -1.5) {\scriptsize{RNN}};
+      \node[hid={3}{blue},below=of w\step,yshift=20pt] (e\step) {};
+      \draw[->] (e\step) -> (w\step);
+    }
+
+
+     \node[label,rectangle, draw=grey, fill=grey!20,
+      minimum height=0.22cm,minimum width=1.35cm] (w4) at (12.25,-1.5) {\scriptsize{RNN}};
+     \node[label,rectangle, draw=grey, fill=grey!20,
+     minimum height=0.22cm,minimum width=1.35cm] (w5) at (14.75,-1.5) {\scriptsize{RNN}};
+
+     \node[right=of w5,xshift=-20pt] (dots) {$\dotso$};
+
+    \node[hid={3}{blue},below=of w4,yshift=20pt] (e4) {};
+    \node[hid={3}{red},below=of w5,yshift=20pt,opacity=0.4] (e5) {};
+    \draw[->] (e4) -> (w4);
+    \draw[->] (e5) -> (w5);
+
+    \foreach \step/\next in {1/2,2/3}
+    \draw[->] (w\step.east) -> (w\next.west) node[above,midway] (h\step) {$h_\step$};
+
+    \draw[->] (w3.east) -> ([xshift=30pt]w3.east) node[above,midway] (h3) {$h_3$};
+    \draw[->] ([xshift=-50pt]w4.west) -> (w4.west) node[above,midway] (c) {$h_1,h_2,h_3$};
+    \draw[->] (w4) -> (w5) node[above,midway] (h4) {$h_4$};
+
+    \foreach \step in {1,2,3}{
+    \node[circle,fill=green!20,draw=green,outer sep=1mm,minimum
+    size=0.8cm,scale=0.8,above=of h\step] (dot\step) {.};
+    \draw[->] (h\step.north) -> (dot\step.south);
+    }
+
+    \node[circle,fill=red!30,draw=red,outer sep=0.1mm,above=of dot1,minimum size=0.8cm,scale=0.85] (s1) {\scriptsize{$9.7$}};
+    \node[circle,fill=red!20,draw=red,outer sep=0.1mm,above=of dot2,minimum size=0.8cm,scale=0.85] (s2) {\scriptsize{$2.1$}};
+    \node[circle,fill=red!10,draw=red,outer sep=0.1mm,above=of dot3,minimum size=0.8cm,scale=0.85] (s3) {\scriptsize{$1.2$}};
+
+    \node[rectangle,draw,above=of s1,minimum width=6cm,minimum height=1cm,xshift=72.5pt] (r) {};
+    \node[rectangle,draw=mygreen,above=of s1,fill=mygreen,minimum height=0.7cm,yshift=0.9pt] (r1) {};
+    \node[rectangle,draw=mygreen,above=of s2,fill=mygreen,minimum height=0.2cm,yshift=0.9pt] (r2) {};
+    \node[rectangle,draw=mygreen,above=of s3,fill=mygreen,minimum height=0.1cm,yshift=0.9pt] (r3) {};
+
+    \node[label,below=of e1,yshift=30pt] {hello};
+    \node[label,below=of e2,yshift=28pt] (my) {my};
+    \node[label,below=of e3,yshift=30pt] {dear};
+    \node[label,below=of e4,yshift=28pt] (eos) {\texttt{<EOS>}};
+    \node[label,below=of e5,yshift=30pt,opacity=0.7] (bonjour) {bonjour};
+
+    \draw[arrow] ([xshift=-20pt]dot3.west) |- (dot2.east);
+    \draw[arrow] ([xshift=-20pt]dot2.west) |- (dot1.east);
+
+    \draw ([xshift=-20pt]dot3.west) |- ([xshift=-20pt,yshift=-25pt]dot3.west);
+    \draw ([xshift=-20pt]dot2.west) |- ([xshift=-20pt,yshift=-30pt]dot2.west);
+
+    \draw[arrow] ([xshift=5pt]h4.north) |- (dot3.east);
+    \draw (h4) |- ([xshift=-20pt,yshift=-25pt]dot3.west);
+    \draw ([xshift=-10pt]h4) |- ([xshift=-20pt,yshift=-30pt]dot2.west);
+
+    \foreach \step in {1,2,3}
+    \draw[arrow] (dot\step) -- ([yshift=-2pt]s\step);
+
+    \foreach \step in {1,2,3}
+    \draw[arrow] (s\step) -- ([yshift=-2pt]r\step.south);
+
+    \node[circle,above=of r1.south,yshift=10pt,fill=green!20,draw=green,outer sep=1mm,minimum size=0.8cm,scale=0.8] (mul1) {x};
+    \node[circle,above=of r2.south,yshift=30pt,fill=green!20,draw=green,outer sep=1mm,minimum size=0.8cm,scale=0.8] (mul2) {x};
+    \node[circle,above=of r3.south,yshift=50pt,fill=green!20,draw=green,outer sep=1mm,minimum size=0.8cm,scale=0.8] (mul3) {x};
+
+    \node[hid={3}{blue},above=of mul1,yshift=28pt] (W1) {};
+    \node[hid={3}{blue},above=of mul2,yshift=8pt] (W2) {};
+    \node[hid={3}{blue},above=of mul3,yshift=-10pt] (W3) {};
+
+    \node[label,above=of W1,yshift=-30pt] {hello};
+    \node[label,above=of W2,yshift=-32pt] {my};
+    \node[label,above=of W3,yshift=-30pt] {dear};
+
+    \foreach \step in {1,2,3}
+    \draw[arrow] (W\step) -- (mul\step);
+
+    \draw[arrow] ([xshift=-2.535cm]r.north) -| (mul1.south);
+    \draw[arrow] ([xshift=-0.05cm]r.north) -| (mul2.south);
+    \draw[arrow] ([xshift=2.4cm]r.north) -| (mul3.south);
+
+    \node[circle,right=of mul2.east,xshift=70pt,fill=green!20,draw=green,outer
+    sep=1mm,minimum size=0.8cm,scale=0.8] (sum) {+};
+
+    \node[hid={3}{red},right=of sum] (output) {};
+    \node[label,above=of output,yshift=-30pt] (output_label) {bonjour};
+    \draw[arrow] (sum) -- (output);
+
+    \draw[arrow] (mul1.east) -| (sum.south);
+    \draw[arrow] (mul2.east) -- (sum);
+    \draw[arrow] (mul3.east) -| (sum.north);
+
+    \node[label,left=of dot1, xshift=0.5cm] {Dot Product};
+    \node[label,left=of s1, xshift=0.45cm] {Attention Score};
+    \node[label,left=of r1, xshift=0.35cm] {Attention Weights};
+    \node[label,left=of mul1,yshift=20pt,xshift=0.55cm] {Weighted Sum};
+
+    \node[label,below=of my.south,yshift=23pt] {\textbf{ENCODER}};
+    \node[label,below=of eos.south,yshift=25pt] {\textbf{DECODER}};
+
+    \node[right=of dot1,xshift=-30pt,yshift=7pt] {\footnotesize{query}};
+    \node[right=of dot2,xshift=-30pt,yshift=7pt] {\footnotesize{query}};
+    \node[right=of dot3,xshift=20pt,yshift=7pt] {\footnotesize{query}};
+
+    \node[above=of h1,xshift=-12pt,yshift=-15pt] {\footnotesize{key}};
+    \node[above=of h2,xshift=-12pt,yshift=-15pt] {\footnotesize{key}};
+    \node[above=of h3,xshift=-12pt,yshift=-15pt] {\footnotesize{key}};
+
+    \node[right=of mul1,xshift=-25pt,yshift=7pt] {\footnotesize{value}};
+    \node[right=of mul2,xshift=-25pt,yshift=7pt] {\footnotesize{value}};
+    \node[right=of mul3,xshift=-25pt,yshift=7pt] {\footnotesize{value}};
+  \end{tikzpicture}
+  \caption{Seq2Seq Learning With Attention Mechanism.}
+  \label{fig:attention}
+\end{figure}
+
+In Figure \ref{fig:attention}, the Attention mechanism starts using the encoder
+RNNs to generate their hidden states, similar to Figure \ref{fig:rnn}. Once
+these hidden states have been generated, the context including these hidden
+states is provided to each time step of the decoder RNNs. For each RNN decoder
+block, the hidden state of decoding is calculated in three significant steps:
+\begin{enumerate}
+\item \textbf{Computation of the Attention/Alignment Score for each word}: to
+  know the most likely word to pay more attention to the translation of the
+  current word, a dot product is made between the previous decoding hidden state
+  with every encoding hidden state.
+
+  The original research paper defines \emph{query}, \emph{key}, and \emph{value}
+  by making an analogy with a database. The query allows performing a search
+  (e.g., book) associated with a set of keys (e.g., book title and abstract) for
+  which each key is associated with a value. From then on, the \emph{Dot-Product
+    Attention} consists of computing the weighted matching between $m$ queries and
+  $n$ keys in an $m$ by $n$ matrix.
+
+\item \textbf{Computation of the Attention Weights}: the Attention scores are
+  normalized with a softmax function in such a way as to ease their processing
+  using a probability distribution whose sum is unitary.
+  \begin{definition}[Attention Score]
+    Let $h_1, \ldots, h_N \in \mathbb{R}^h$ be encoder hidden states, $s_t \in
+    \mathbb{R}^h$ be the decoder hidden state, and $t$ be the time
+    step. Mathematically, the $\mathrm{a}_t$ Attention score is defined as follows:
+    \begin{align}
+      \alpha^t &= \mathrm{softmax}\left(\left[  s_t^Th_1, \ldots, s_t^Th_N \right]\right) \in \mathbb{R}^N \\
+      \mathrm{a}_t &= \sum^N_{i=1}\alpha^t_ih_i \in \mathbb{R}^N
+      \label{eq:def:attention:score}
+    \end{align}
+    \label{def:attention:score}
+  \end{definition}
+
+\item \textbf{Computation of the weighted sum}: After normalization, it is
+necessary to multiply each embedded word with its weight to compute the hidden
+state.
+\end{enumerate}
+
+After the calculation of the hidden states, Attention picks the most likely word
+for translation. This mechanism gives importance to these words by mapping them
+to a higher or lower weight depending on the word’s relevance. Therefore, this
+improves the accuracy of the output predictions~\citep{bahdanau}. However, the
+Attention mechanism in Figure \ref{fig:attention} cannot be used in a neural
+network since there are no weights to train by a model. In practice, the
+Attention mechanism uses three weight matrices to multiply each key, value, and
+query by their respective matrices called the key, query, and value matrices.
+
+Following the publication of Attention, another attention mechanism emerged
+which gives attention within input elements. \emph{Self-Attention} also called
+\emph{intra-attention}, is a Attention mechanism defines in 2016 and relates
+different positions of a single sequence to compute a representation of the same
+sequence~\citep{Cheng}. Unlike the primary Attention mechanism, where the query,
+key, and value matrices may differ, Self-Attention has these three matrices
+identically as generated from the same input sequence. Based on a gradient
+signal, each self-attention block can use this signal to propagate information
+to the weight matrices, namely the key, query, and values matrices. It is
+largely thanks to Self-Attention that the \emph{Transformer} architecture was
+created.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../../report"
+%%% End:

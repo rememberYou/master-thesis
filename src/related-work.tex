@@ -1,0 +1,122 @@
+
+\chapter{Related Work}
+\label{chap:related:work}
+
+This chapter presents the related work around BERT and RDF2Vec with KGs to
+understand better the study done by this Master's thesis.
+
+\section{BERT}
+\label{section:related:work:bert}
+
+Over the last few years after the publication of
+BERT~\citep{inproceedings:devlin}, several variants of this model emerged and
+were evaluated with its original version. One of these variants is DistilBERT, a
+smaller, cheaper, and lighter version of BERT. The comparison of DistilBERT with
+BERT and ELMo, another embedding technique, showed promising results across
+several data sets. Specifically, DistilBERT~\citep{distilbert} had almost as
+excellent performance as BERT surpassing ELMo's score in most data sets.
+
+In the NLP related to biomedical and clinical texts, a benchmark of five tasks
+with ten datasets of different sizes and difficulties also compared BERT and
+ELMo~\citep{peng}. In this benchmark, BERT showed better overall results
+compared to ELMo. Another evaluation provides lower accuracy for BERT than GloVe
+when using a dataset related to tweets with or without
+sarcasm~\citep{khatri}. According to the authors, these lower BERT scores are
+due to the lack of context provided by the sarcastic tweets. Finally, another
+benchmark is interested in comparing BERT with ELMo, GloVe, and FastText by
+performing principal component static embeddings~\citep{ethayarajh}. In this use
+case, BERT shows the best results in most data sets.
+
+Meanwhile, the community has released other KG-oriented variants of BERT, such
+as KG-BERT, released in 2019. This BERT-based framework achieves
+state-of-the-art performance in triple classification and link and relationship
+prediction tasks~~\citep{DBLP:journals/corr/abs-1909-03193}. Shortly after the
+publication of KG-BERT, K-BERT is also released, which has the particularity of
+not using pre-training. K-BERT uses BERT to infer relevant knowledge in a domain
+text to solve the lack of domain-specific knowledge within a general language
+representation from large-scale corpora~\citep{DBLP:conf/aaai/LiuZ0WJD020}. In
+this paper, K-BERT significantly outperforms BERT in NLP tasks from different
+fields such as finance, law, and medicine.
+
+After the release of KG-BERT and K-BERT, others variants followed, such as
+Graph-BERT published in 2020. Graph-BERT relies solely on the Attention
+mechanism without using graph convolution or aggregation operations. This
+KG-variant also shows promising results overcoming Graph Neural Networks (GNNs)
+in the learning efficiency for node classification and graph clustering
+tasks~\citep{zhang}.
+
+BERT-INT is also another variation of BERT, which predicts the identity of two
+entities across multiple KGs. BERT-INT works on proximity information to predict
+such identity without relying on the KG structure
+itself~\citep{DBLP:conf/ijcai/Tang0C00L20}. Precisely, BERT-INT mimics entity
+comparison as humans would by comparing their name, description, and
+attributes. When these two entities share the same information, a second
+comparison consists of assessing the similarity of neighbors between entities,
+but this time based on their name and description only.
+
+Finally, the last paper uses BERT with Transfer Learning to answer questions
+based on a domain-specific KG~\citep{DBLP:conf/aics/VegupattiNC20}. Specifically
+in the field of medical biology using a dataset of 600 questions. In this paper,
+BERT succeeded in answering these questions with more than acceptable results.
+
+The discoveries made around BERT suggest that the usage of this embedding
+technique with KGs is possible. However, too few research papers compare BERT
+with other embedding techniques. This lack of articles makes it unclear what the
+context of BERT's application is. The work of \textsc{Khatri} et al. gives a
+lead, but it is not enough.
+
+\section{Graph-Based Machine Learning}
+\label{section:related:work:graph}
+
+From a data modeling perspective, the use of KG since its publication has become
+a standard in the Semantic Web. This specific type of graph has its use in many
+fields to model a knowledge domain. However, despite the valuable information
+such a graph can provide, an ML model cannot directly learn from
+them~\citep{article:ristoski:rdf2vec}. Therefore, this decade proposed several
+techniques to convert KGs into embeddings for downstream ML tasks. In the field
+of KG embeddings, three categories of embedding creations are distinguished:
+\emph{direct encoding} based, Deep Learning (DL) based, and \emph{path/walk}
+based.
+
+The first category includes algorithms such as RESCAL and Translating Embeddings
+(TransE) that mainly stand out in tasks related to graph completion as well as
+link prediction and entity classification, also called \emph{node
+classification}~\citep{DBLP:conf/nips/BordesUGWY13}. It is still possible to
+perform mathematical operations with direct encoding while remaining the
+\emph{embedded space} node classification result. This embedded space ensures
+the data embedding after dimensionality reduction. However, two of the drawbacks
+of direct encoding are their limited use with dynamic graphs and support for
+literals.
+
+Modeling Relational Data with Graph Convolutional Networks (R-GCNs) mainly
+dominates the second category. R-GCNs is a supervised algorithm published in
+2017 working directly on graphs. This algorithm illustrates DL's power in the
+Statistical Relational Learning tasks as link prediction and entity
+classification~\citep{DBLP:conf/esws/SchlichtkrullKB18}. However, a significant
+disadvantage of R-GCNs is their memory consumption due to loading the KG
+upstream, limiting its use to KGs of reasonable size. Another drawback concerns
+their dependency on manual labeling of the training datasets due to the
+\emph{supervised learning}, which can be time-consuming depending on its
+size. Besides that, the support of literals is theoretically possible, but only
+a few studies have investigated the subject.
+
+The last category includes RDF2Vec, which is the state-of-the-art unsupervised
+algorithm since 2016. Unlike the other two categories, in this category, the
+creation of embeddings is done by traversing a KG using a walking and sampling
+strategy. Therefore, an essential drawback of RDF2Vec is that without caching
+and other optimization mechanisms, the walk extraction time can be significant
+for large KGs.
+
+Each of these three categories of algorithms ensures the generation of
+embeddings. However, according to the use case, one category may be preferred to
+another. For example, since R-GCNs explicitly remove edges in a KG before
+training a model, RDF2Vec could be preferred. Furthermore, RDF2Vec can decide
+whether or not to prioritize a hop due to its walking and sampling strategy,
+which avoids training a model over the whole KG. Finally, these categories can
+support an online learning implementation and guarantee that a model remains up
+to date.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "latex"
+%%% End:
